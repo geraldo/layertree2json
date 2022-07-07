@@ -25,7 +25,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QFileInfo
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
-from qgis.core import QgsProject, Qgis, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsVectorLayer, QgsAttributeEditorElement
+from qgis.core import QgsProject, Qgis, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsVectorLayer, QgsAttributeEditorElement, QgsExpressionContextUtils
 from qgis.gui import QgsGui
 import json
 import unicodedata
@@ -36,6 +36,7 @@ from .resources import *
 # Import the code for the dialog
 from .qgs_layer_parser_dialog import QgsLayerParserDialog
 import os.path
+from tempfile import gettempdir
 
 
 class QgsLayerParser:
@@ -321,12 +322,8 @@ class QgsLayerParser:
             self.dlg = QgsLayerParserDialog()
             self.dlg.buttonShow.clicked.connect(self.show_online_file)
 
-        #QgsProject.instance().readEntry("")
-        file_name = QgsProject.instance().fileName()
-        root_path = QgsProject.instance().homePath() + os.path.sep
-
         self.dlg.inputFilename.clear()
-        self.dlg.inputFilename.setText(file_name[len(root_path):]+'.json')
+        self.dlg.inputFilename.setText(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")+'.json')
 
         # show the dialog
         self.dlg.show()
@@ -343,19 +340,19 @@ class QgsLayerParser:
             # parse QGS file to JSON
             info=[]
             for group in QgsProject.instance().layerTreeRoot().children():
-                print(group.name())
                 obj = self.getLayerTree(group, project_file)
                 info.append(obj)
 
             # write JSON to temporary file and show in browser
-            file = open('/tmp/'+prj_file+'.json', 'w+')
+            filename = gettempdir()+os.path.sep+prj_file+'.json'
+            file = open(filename, 'w')
             file.write(json.dumps(info))
             file.close()
-            webbrowser.get().open_new('/tmp/'+prj_file+'.json')
+            webbrowser.get().open_new(filename)
 
             # upload to server by FTP
 
             # message to user
             self.iface.messageBar().pushMessage(
-              "Success", "File published at " + '/tmp/'+prj_file+'.json',
+              "Success", "File published at " + filename,
               level=Qgis.Success, duration=3)
