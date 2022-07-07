@@ -312,6 +312,11 @@ class QgsLayerParser:
         return obj
 
 
+    def update_path(self):
+        self.dlg.inputPath.clear()
+        self.dlg.inputPath.setText('/var/servers/'+self.dlg.inputProject.currentText()+'/web/js/data/')
+
+
     def run(self):
         """Run method that performs all the real work"""
 
@@ -321,6 +326,10 @@ class QgsLayerParser:
             self.first_start = False
             self.dlg = QgsLayerParserDialog()
             self.dlg.buttonShow.clicked.connect(self.show_online_file)
+            self.dlg.inputProject.currentTextChanged.connect(self.update_path)
+
+        self.dlg.inputPath.clear()
+        self.dlg.inputPath.setText('/var/servers/'+self.dlg.inputProject.currentText()+'/web/js/data/')
 
         self.dlg.inputFilename.clear()
         self.dlg.inputFilename.setText(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")+'.json')
