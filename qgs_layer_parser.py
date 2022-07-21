@@ -30,18 +30,7 @@ from qgis.gui import QgsGui
 import json
 import unicodedata
 import webbrowser
-
-try:
-    import pysftp
-except ImportError:
-    import sys
-    import os
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    print(this_dir)
-    path = os.path.join(this_dir, 'pysftp-0.2.9-py3-none-any.whl')
-    print(path)
-    sys.path.append(path)
-    import pysftp
+import pysftp
 
 # Initialize Qt resources from file resources.py
 from .resources import *
