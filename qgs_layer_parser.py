@@ -30,7 +30,18 @@ from qgis.gui import QgsGui
 import json
 import unicodedata
 import webbrowser
-import pysftp
+
+try:
+    import pysftp
+except ImportError:
+    import sys
+    import os
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    print(this_dir)
+    path = os.path.join(this_dir, 'pysftp-0.2.9-py3-none-any.whl')
+    print(path)
+    sys.path.append(path)
+    import pysftp
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -361,58 +372,64 @@ class QgsLayerParser:
     def run(self):
         """Run method that performs all the real work"""
 
-        # Create the dialog with elements (after translation) and keep reference
-        # Only create GUI ONCE in callback, so that it will only load when the plugin is started
-        if self.first_start == True:
-            self.first_start = False
-            self.dlg = QgsLayerParserDialog()
-            self.dlg.buttonShow.clicked.connect(self.show_online_file)
-            self.dlg.buttonTest.clicked.connect(self.test_connection)
-            self.dlg.inputProject.currentTextChanged.connect(self.update_path)
+        if (QgsProject.instance().fileName() == ""):
+            self.iface.messageBar().pushMessage(
+                  "Warning", "Please open a project file in order to use this plugin",
+                  level=Qgis.Warning, duration=3)
 
-        self.dlg.inputPath.clear()
-        self.dlg.inputPath.setText('/var/www/mapa/'+self.dlg.inputProject.currentText()+'/js/data/')
+        else:
+            # Create the dialog with elements (after translation) and keep reference
+            # Only create GUI ONCE in callback, so that it will only load when the plugin is started
+            if self.first_start == True:
+                self.first_start = False
+                self.dlg = QgsLayerParserDialog()
+                self.dlg.buttonShow.clicked.connect(self.show_online_file)
+                self.dlg.buttonTest.clicked.connect(self.test_connection)
+                self.dlg.inputProject.currentTextChanged.connect(self.update_path)
 
-        self.dlg.inputFilename.clear()
-        self.dlg.inputFilename.setText(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")+'.json')
+            self.dlg.inputPath.clear()
+            self.dlg.inputPath.setText('/var/www/mapa/'+self.dlg.inputProject.currentText()+'/js/data/')
 
-        # show the dialog
-        self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # See if OK was pressed
-        if result:
+            self.dlg.inputFilename.clear()
+            self.dlg.inputFilename.setText(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")+'.json')
 
-            # check mode
-            if ((self.dlg.radioUpload.isChecked() and self.inputsFtpOk()) 
-                or self.dlg.radioLocal.isChecked()):
+            # show the dialog
+            self.dlg.show()
+            # Run the dialog event loop
+            result = self.dlg.exec_()
+            # See if OK was pressed
+            if result:
 
-                # prepare file names
-                prj_file = self.dlg.inputFilename.text()
-                prj_file = prj_file.replace('.json', '')
-                project_file = prj_file.replace('.qgs', '')
+                # check mode
+                if ((self.dlg.radioUpload.isChecked() and self.inputsFtpOk()) 
+                    or self.dlg.radioLocal.isChecked()):
 
-                # parse QGS file to JSON
-                info=[]
-                for group in QgsProject.instance().layerTreeRoot().children():
-                    obj = self.getLayerTree(group, project_file)
-                    info.append(obj)
+                    # prepare file names
+                    prj_file = self.dlg.inputFilename.text()
+                    prj_file = prj_file.replace('.json', '')
+                    project_file = prj_file.replace('.qgs', '')
 
-                # write JSON to temporary file and show in browser
-                filename = gettempdir()+os.path.sep+prj_file+'.json'
-                file = open(filename, 'w')
-                file.write(json.dumps(info))
-                file.close()
+                    # parse QGS file to JSON
+                    info=[]
+                    for group in QgsProject.instance().layerTreeRoot().children():
+                        obj = self.getLayerTree(group, project_file)
+                        info.append(obj)
 
-                # upload to server by FTP
-                if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
-                    self.connectToFtp(filename)
-                    self.show_online_file()
-                    filename = self.dlg.inputPath.text()+self.dlg.inputFilename.text()
-                else:
-                    webbrowser.get().open_new(filename)
+                    # write JSON to temporary file and show in browser
+                    filename = gettempdir()+os.path.sep+prj_file+'.json'
+                    file = open(filename, 'w')
+                    file.write(json.dumps(info))
+                    file.close()
 
-                # message to user
-                self.iface.messageBar().pushMessage(
-                  "Success", "File published at " + filename,
-                  level=Qgis.Success, duration=3)
+                    # upload to server by FTP
+                    if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
+                        self.connectToFtp(filename)
+                        self.show_online_file()
+                        filename = self.dlg.inputPath.text()+self.dlg.inputFilename.text()
+                    else:
+                        webbrowser.get().open_new(filename)
+
+                    # message to user
+                    self.iface.messageBar().pushMessage(
+                      "Success", "File published at " + filename,
+                      level=Qgis.Success, duration=3)
