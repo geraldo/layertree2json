@@ -23,6 +23,10 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
+import os
+import site
+print(os.path.abspath(os.path.dirname(__file__) + '/libs'))
+site.addsitedir(os.path.abspath(os.path.dirname(__file__) + '/libs'))
 
 # noinspection PyPep8Naming
 def classFactory(iface):  # pylint: disable=invalid-name
