@@ -31,6 +31,18 @@ import json
 import unicodedata
 import webbrowser
 
+try:
+    import pysftp
+except ImportError:
+    import sys
+    import os
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    print(this_dir)
+    path = os.path.join(this_dir, 'pysftp-0.2.9-py3-none-any.whl')
+    print(path)
+    sys.path.append(path)
+    import pysftp
+
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
@@ -189,13 +201,53 @@ class QgsLayerParser:
 
     def show_online_file(self):
         host = self.dlg.inputHost.text()
-        path = self.dlg.inputPath.text()[len('/var/servers'):]
-        strWeb = 'web/'
-        path1 = path[:path.find(strWeb)]
-        path2 = path[path.find(strWeb)+len(strWeb):]
+        path = self.dlg.inputPath.text()[len('/var/www/mapa'):]
         filename = self.dlg.inputFilename.text()
-        webbrowser.get().open_new(host+path1+path2+filename)
+        webbrowser.get().open_new(host+path+filename)
 
+
+    def inputsFtpOk(self):
+        if (len(self.dlg.inputHost.text()) == 0 or
+            len(self.dlg.inputUser.text()) == 0 or
+            len(self.dlg.inputPassword.text()) == 0):
+
+            self.iface.messageBar().pushMessage(
+                    "Warning", "You have to fill out fields Host, User and Password in order to use FTP",
+                    level=Qgis.Warning, duration=3)
+            return False
+        else: 
+            return True
+
+
+    def connectToFtp(self, uploadFile=False):
+        try:
+            sftp = pysftp.Connection(host=self.dlg.inputHost.text(), 
+                username=self.dlg.inputUser.text(), 
+                password=self.dlg.inputPassword.text())
+
+            if (uploadFile):
+                sftp.chdir(self.dlg.inputPath.text())
+                sftp.put(uploadFile)
+
+                self.iface.messageBar().pushMessage(
+                    "Success", "File UPLOADED to host " + self.dlg.inputHost.text(),
+                    level=Qgis.Success, duration=3)
+            else:
+                self.iface.messageBar().pushMessage(
+                    "Success", "FTP connection ESTABLISHED to host " + self.dlg.inputHost.text(),
+                    level=Qgis.Success, duration=3)
+
+            sftp.close()
+        except:
+            self.iface.messageBar().pushMessage(
+                "Warning", "FTP connection FAILED to host " + self.dlg.inputHost.text(),
+                level=Qgis.Warning, duration=3)
+
+
+    def test_connection(self):
+        if (self.inputsFtpOk()):
+            self.connectToFtp()
+ 
 
     def replaceSpecialChar(self, text):
         chars = "!\"#$%&'()*+,./:;<=>?@[\\]^`{|}~¬·"
@@ -314,7 +366,7 @@ class QgsLayerParser:
 
     def update_path(self):
         self.dlg.inputPath.clear()
-        self.dlg.inputPath.setText('/var/servers/'+self.dlg.inputProject.currentText()+'/web/js/data/')
+        self.dlg.inputPath.setText('/var/www/mapa/'+self.dlg.inputProject.currentText()+'/js/data/')
 
 
     def run(self):
@@ -326,10 +378,11 @@ class QgsLayerParser:
             self.first_start = False
             self.dlg = QgsLayerParserDialog()
             self.dlg.buttonShow.clicked.connect(self.show_online_file)
+            self.dlg.buttonTest.clicked.connect(self.test_connection)
             self.dlg.inputProject.currentTextChanged.connect(self.update_path)
 
         self.dlg.inputPath.clear()
-        self.dlg.inputPath.setText('/var/servers/'+self.dlg.inputProject.currentText()+'/web/js/data/')
+        self.dlg.inputPath.setText('/var/www/mapa/'+self.dlg.inputProject.currentText()+'/js/data/')
 
         self.dlg.inputFilename.clear()
         self.dlg.inputFilename.setText(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")+'.json')
@@ -341,27 +394,36 @@ class QgsLayerParser:
         # See if OK was pressed
         if result:
 
-            # prepare file names
-            prj_file = self.dlg.inputFilename.text()
-            prj_file = prj_file.replace('.json', '')
-            project_file = prj_file.replace('.qgs', '')
+            # check mode
+            if ((self.dlg.radioUpload.isChecked() and self.inputsFtpOk()) 
+                or self.dlg.radioLocal.isChecked()):
 
-            # parse QGS file to JSON
-            info=[]
-            for group in QgsProject.instance().layerTreeRoot().children():
-                obj = self.getLayerTree(group, project_file)
-                info.append(obj)
+                # prepare file names
+                prj_file = self.dlg.inputFilename.text()
+                prj_file = prj_file.replace('.json', '')
+                project_file = prj_file.replace('.qgs', '')
 
-            # write JSON to temporary file and show in browser
-            filename = gettempdir()+os.path.sep+prj_file+'.json'
-            file = open(filename, 'w')
-            file.write(json.dumps(info))
-            file.close()
-            webbrowser.get().open_new(filename)
+                # parse QGS file to JSON
+                info=[]
+                for group in QgsProject.instance().layerTreeRoot().children():
+                    obj = self.getLayerTree(group, project_file)
+                    info.append(obj)
 
-            # upload to server by FTP
+                # write JSON to temporary file and show in browser
+                filename = gettempdir()+os.path.sep+prj_file+'.json'
+                file = open(filename, 'w')
+                file.write(json.dumps(info))
+                file.close()
 
-            # message to user
-            self.iface.messageBar().pushMessage(
-              "Success", "File published at " + filename,
-              level=Qgis.Success, duration=3)
+                # upload to server by FTP
+                if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
+                    self.connectToFtp(filename)
+                    self.show_online_file()
+                    filename = self.dlg.inputPath.text()+self.dlg.inputFilename.text()
+                else:
+                    webbrowser.get().open_new(filename)
+
+                # message to user
+                self.iface.messageBar().pushMessage(
+                  "Success", "File published at " + filename,
+                  level=Qgis.Success, duration=3)

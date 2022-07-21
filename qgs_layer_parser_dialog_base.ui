@@ -267,17 +267,17 @@
     </property>
     <item>
      <property name="text">
+      <string>test</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
       <string>ssa</string>
      </property>
     </item>
     <item>
      <property name="text">
       <string>ctbb</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>bellamar</string>
      </property>
     </item>
    </widget>
@@ -310,7 +310,7 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioLocally">
+   <widget class="QRadioButton" name="radioLocal">
     <property name="geometry">
      <rect>
       <x>10</x>
