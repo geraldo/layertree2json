@@ -25,7 +25,6 @@
 
 import os
 import site
-print(os.path.abspath(os.path.dirname(__file__) + '/libs'))
 site.addsitedir(os.path.abspath(os.path.dirname(__file__) + '/libs'))
 
 # noinspection PyPep8Naming

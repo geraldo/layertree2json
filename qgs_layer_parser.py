@@ -190,9 +190,9 @@ class QgsLayerParser:
 
     def show_online_file(self):
         host = self.dlg.inputHost.text()
-        path = self.dlg.inputPath.text()[len('/var/www/mapa'):]
-        filename = self.dlg.inputFilename.text()
-        webbrowser.get().open_new(host+path+filename)
+        path = self.dlg.inputJSONpath.text()[len('/var/www/mapa'):]
+        filenameJSON = self.dlg.inputJSONpath.text()
+        webbrowser.get().open_new(host+path)
 
 
     def inputsFtpOk(self):
@@ -208,14 +208,16 @@ class QgsLayerParser:
             return True
 
 
-    def connectToFtp(self, uploadFile=False):
+    def connectToFtp(self, uploadFile=False, uploadPath=False):
+        print(uploadFile, uploadPath)
+
         try:
             sftp = pysftp.Connection(host=self.dlg.inputHost.text(), 
                 username=self.dlg.inputUser.text(), 
                 password=self.dlg.inputPassword.text())
 
-            if (uploadFile):
-                sftp.chdir(self.dlg.inputPath.text())
+            if (uploadFile and uploadPath):
+                sftp.chdir(uploadPath)
                 sftp.put(uploadFile)
 
                 self.iface.messageBar().pushMessage(
@@ -354,8 +356,8 @@ class QgsLayerParser:
 
 
     def update_path(self):
-        self.dlg.inputPath.clear()
-        self.dlg.inputPath.setText('/var/www/mapa/'+self.dlg.inputProject.currentText()+'/js/data/')
+        self.dlg.inputJSONpath.clear()
+        self.dlg.inputJSONpath.setText('/var/www/mapa/'+self.dlg.inputProject.currentText()+'/js/data/')
 
 
     def run(self):
@@ -376,11 +378,17 @@ class QgsLayerParser:
                 self.dlg.buttonTest.clicked.connect(self.test_connection)
                 self.dlg.inputProject.currentTextChanged.connect(self.update_path)
 
-            self.dlg.inputPath.clear()
-            self.dlg.inputPath.setText('/var/www/mapa/'+self.dlg.inputProject.currentText()+'/js/data/')
+            self.dlg.inputJSONpath.clear()
+            projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
+            projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
+            JSONpath = '/var/www/mapa/' + self.dlg.inputProject.currentText() + '/js/data/'
+            JSONpathfile = JSONpath + projectFilename + '.json'
+            self.dlg.inputJSONpath.setText(JSONpathfile)
 
-            self.dlg.inputFilename.clear()
-            self.dlg.inputFilename.setText(QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")+'.json')
+            self.dlg.inputQGSpath.clear()
+            QGSpath = '/home/ubuntu/' + self.dlg.inputProject.currentText() + '/'
+            QGSpathfile = QGSpath + projectFilename
+            self.dlg.inputQGSpath.setText(QGSpathfile)
 
             # show the dialog
             self.dlg.show()
@@ -394,9 +402,7 @@ class QgsLayerParser:
                     or self.dlg.radioLocal.isChecked()):
 
                     # prepare file names
-                    prj_file = self.dlg.inputFilename.text()
-                    prj_file = prj_file.replace('.json', '')
-                    project_file = prj_file.replace('.qgs', '')
+                    project_file = projectFilename.replace('.qgs', '')
 
                     # parse QGS file to JSON
                     info=[]
@@ -405,20 +411,26 @@ class QgsLayerParser:
                         info.append(obj)
 
                     # write JSON to temporary file and show in browser
-                    filename = gettempdir()+os.path.sep+prj_file+'.json'
-                    file = open(filename, 'w')
+                    filenameJSON = gettempdir()+os.path.sep+projectFilename+'.json'
+                    file = open(filenameJSON, 'w')
                     file.write(json.dumps(info))
                     file.close()
 
-                    # upload to server by FTP
                     if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
-                        self.connectToFtp(filename)
+                        # upload JSON file to server by FTP
+                        self.connectToFtp(filenameJSON, JSONpath)
                         self.show_online_file()
-                        filename = self.dlg.inputPath.text()+self.dlg.inputFilename.text()
+                        filenameJSON = self.dlg.inputJSONpath.text()
+                        
+                        # upload QGS file to server by FTP
+                        self.connectToFtp(projectFolder + '/' + projectFilename, QGSpath)
+                        self.iface.messageBar().pushMessage(
+                          "Success", "QGS file " + projectFilename + " published at " + QGSpath,
+                          level=Qgis.Success, duration=3)
                     else:
-                        webbrowser.get().open_new(filename)
+                        webbrowser.get().open_new(filenameJSON)
 
                     # message to user
                     self.iface.messageBar().pushMessage(
-                      "Success", "File published at " + filename,
+                      "Success", "JSON file published at " + filenameJSON,
                       level=Qgis.Success, duration=3)

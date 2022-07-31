@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>530</width>
     <height>506</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
     <rect>
      <x>20</x>
      <y>470</y>
-     <width>361</width>
+     <width>491</width>
      <height>30</height>
     </rect>
    </property>
@@ -40,7 +40,7 @@
     <rect>
      <x>20</x>
      <y>120</y>
-     <width>361</width>
+     <width>491</width>
      <height>161</height>
     </rect>
    </property>
@@ -91,7 +91,7 @@
      <rect>
       <x>90</x>
       <y>40</y>
-      <width>261</width>
+      <width>391</width>
       <height>21</height>
      </rect>
     </property>
@@ -104,7 +104,7 @@
      <rect>
       <x>90</x>
       <y>70</y>
-      <width>261</width>
+      <width>391</width>
       <height>21</height>
      </rect>
     </property>
@@ -117,7 +117,7 @@
      <rect>
       <x>90</x>
       <y>100</y>
-      <width>261</width>
+      <width>391</width>
       <height>21</height>
      </rect>
     </property>
@@ -128,7 +128,7 @@
    <widget class="QPushButton" name="buttonTest">
     <property name="geometry">
      <rect>
-      <x>228</x>
+      <x>360</x>
       <y>130</y>
       <width>121</width>
       <height>25</height>
@@ -144,27 +144,27 @@
     <rect>
      <x>20</x>
      <y>300</y>
-     <width>361</width>
+     <width>491</width>
      <height>151</height>
     </rect>
    </property>
    <property name="title">
-    <string>Destination</string>
+    <string>Project data</string>
    </property>
-   <widget class="QLabel" name="labelPath">
+   <widget class="QLabel" name="labelJSONpath">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>60</y>
-      <width>67</width>
+      <width>81</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>Path:</string>
+     <string>JSON File:</string>
     </property>
    </widget>
-   <widget class="QLabel" name="labelFilename">
+   <widget class="QLabel" name="labelQGSpath">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -174,15 +174,15 @@
      </rect>
     </property>
     <property name="text">
-     <string>File name:</string>
+     <string>QGS path:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="inputPath">
+   <widget class="QLineEdit" name="inputJSONpath">
     <property name="geometry">
      <rect>
       <x>90</x>
       <y>60</y>
-      <width>261</width>
+      <width>391</width>
       <height>21</height>
      </rect>
     </property>
@@ -199,12 +199,12 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLineEdit" name="inputFilename">
+   <widget class="QLineEdit" name="inputQGSpath">
     <property name="geometry">
      <rect>
       <x>90</x>
       <y>90</y>
-      <width>261</width>
+      <width>391</width>
       <height>21</height>
      </rect>
     </property>
@@ -233,14 +233,14 @@
    <widget class="QPushButton" name="buttonShow">
     <property name="geometry">
      <rect>
-      <x>198</x>
+      <x>290</x>
       <y>120</y>
-      <width>151</width>
+      <width>191</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Show published file</string>
+     <string>Show published JSON file</string>
     </property>
    </widget>
    <widget class="QLabel" name="labelProject">
@@ -261,7 +261,7 @@
      <rect>
       <x>90</x>
       <y>30</y>
-      <width>261</width>
+      <width>391</width>
       <height>21</height>
      </rect>
     </property>
@@ -281,13 +281,26 @@
      </property>
     </item>
    </widget>
+   <widget class="QPushButton" name="buttonShow_2">
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>120</y>
+      <width>161</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Show layer structure</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QGroupBox" name="groupMode">
    <property name="geometry">
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>361</width>
+     <width>491</width>
      <height>80</height>
     </rect>
    </property>
