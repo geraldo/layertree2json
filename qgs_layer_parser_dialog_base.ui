@@ -261,13 +261,13 @@
      <rect>
       <x>90</x>
       <y>30</y>
-      <width>391</width>
+      <width>251</width>
       <height>21</height>
      </rect>
     </property>
     <item>
      <property name="text">
-      <string>test</string>
+      <string>qgs-layer-parser-plugin-site</string>
      </property>
     </item>
     <item>
@@ -281,17 +281,17 @@
      </property>
     </item>
    </widget>
-   <widget class="QPushButton" name="buttonShow_2">
+   <widget class="QPushButton" name="buttonShowProject">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>120</y>
-      <width>161</width>
+      <x>360</x>
+      <y>30</y>
+      <width>121</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Show layer structure</string>
+     <string>Show project</string>
     </property>
    </widget>
   </widget>

@@ -39,6 +39,9 @@ from .qgs_layer_parser_dialog import QgsLayerParserDialog
 import os.path
 from tempfile import gettempdir
 
+projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
+projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
+
 
 class QgsLayerParser:
     """QGIS Plugin Implementation."""
@@ -191,8 +194,19 @@ class QgsLayerParser:
     def show_online_file(self):
         host = self.dlg.inputHost.text()
         path = self.dlg.inputJSONpath.text()[len('/var/www/mapa'):]
-        filenameJSON = self.dlg.inputJSONpath.text()
-        webbrowser.get().open_new(host+path)
+        webbrowser.get().open_new(host + path)
+
+
+    def show_project(self):
+        host = self.dlg.inputHost.text()
+        path = self.dlg.inputProject.currentText()
+        if path == 'ctbb':
+            path += os.path.sep + 'index'
+            if projectFilename != 'poum':
+                path += '_' + projectFilename.replace('.qgs', '')
+            path += '.php'
+        print(path)
+        webbrowser.get().open_new(host + os.path.sep + path)
 
 
     def inputsFtpOk(self):
@@ -209,7 +223,7 @@ class QgsLayerParser:
 
 
     def connectToFtp(self, uploadFile=False, uploadPath=False):
-        print(uploadFile, uploadPath)
+        # print(uploadFile, uploadPath)
 
         try:
             sftp = pysftp.Connection(host=self.dlg.inputHost.text(), 
@@ -374,19 +388,18 @@ class QgsLayerParser:
             if self.first_start == True:
                 self.first_start = False
                 self.dlg = QgsLayerParserDialog()
-                self.dlg.buttonShow.clicked.connect(self.show_online_file)
                 self.dlg.buttonTest.clicked.connect(self.test_connection)
+                self.dlg.buttonShow.clicked.connect(self.show_online_file)
+                self.dlg.buttonShowProject.clicked.connect(self.show_project)
                 self.dlg.inputProject.currentTextChanged.connect(self.update_path)
 
             self.dlg.inputJSONpath.clear()
-            projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
-            projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
             JSONpath = '/var/www/mapa/' + self.dlg.inputProject.currentText() + '/js/data/'
             JSONpathfile = JSONpath + projectFilename + '.json'
             self.dlg.inputJSONpath.setText(JSONpathfile)
 
             self.dlg.inputQGSpath.clear()
-            QGSpath = '/home/ubuntu/' + self.dlg.inputProject.currentText() + '/'
+            QGSpath = '/home/ubuntu/' + self.dlg.inputProject.currentText() + os.path.sep
             QGSpathfile = QGSpath + projectFilename
             self.dlg.inputQGSpath.setText(QGSpathfile)
 
