@@ -205,8 +205,17 @@ class QgsLayerParser:
             if projectFilename != 'poum':
                 path += '_' + projectFilename.replace('.qgs', '')
             path += '.php'
-        print(path)
         webbrowser.get().open_new(host + os.path.sep + path)
+
+
+    def radioStateLocal(self, state):
+        if state.isChecked() == True:
+            self.dlg.radioProject.setEnabled(False)
+
+
+    def radioStateUpload(self, state):
+        if state.isChecked() == True:
+            self.dlg.radioProject.setEnabled(True)
 
 
     def inputsFtpOk(self):
@@ -388,6 +397,9 @@ class QgsLayerParser:
             if self.first_start == True:
                 self.first_start = False
                 self.dlg = QgsLayerParserDialog()
+                
+                self.dlg.radioLocal.toggled.connect(lambda:self.radioStateLocal(self.dlg.radioLocal))
+                self.dlg.radioUpload.toggled.connect(lambda:self.radioStateUpload(self.dlg.radioUpload))
                 self.dlg.buttonTest.clicked.connect(self.test_connection)
                 self.dlg.buttonShow.clicked.connect(self.show_online_file)
                 self.dlg.buttonShowProject.clicked.connect(self.show_project)
@@ -432,16 +444,21 @@ class QgsLayerParser:
                     if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
                         # upload JSON file to server by FTP
                         self.connectToFtp(filenameJSON, JSONpath)
-                        self.show_online_file()
                         filenameJSON = self.dlg.inputJSONpath.text()
                         
                         # upload QGS file to server by FTP
                         self.connectToFtp(projectFolder + '/' + projectFilename, QGSpath)
                         self.iface.messageBar().pushMessage(
                           "Success", "QGS file " + projectFilename + " published at " + QGSpath,
-                          level=Qgis.Success, duration=3)
-                    else:
-                        webbrowser.get().open_new(filenameJSON)
+                          level=Qgis.Success, duration=3)                    
+                    
+                    if self.dlg.radioProject.isChecked():
+                        self.show_project()
+                    elif self.dlg.radioJson.isChecked():
+                        if self.dlg.radioUpload.isChecked():
+                            self.show_online_file()
+                        else:
+                            webbrowser.get().open_new(filenameJSON)
 
                     # message to user
                     self.iface.messageBar().pushMessage(
