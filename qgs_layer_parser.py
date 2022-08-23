@@ -39,21 +39,20 @@ from .qgs_layer_parser_dialog import QgsLayerParserDialog
 import os.path
 from tempfile import gettempdir
 
-projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
-projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
-
 
 class QgsLayerParser:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        """Constructor.
+        self.projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
+        self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
+        self.JSONpathbase = '/var/www/mapa/'
+        self.JSONpath = self.JSONpathbase
+        self.JSONpathfile = ''
+        self.QGSpathbase = '/home/ubuntu/'
+        self.QGSpath = self.QGSpathbase
+        self.QGSpathfile = ''
 
-        :param iface: An interface instance that will be passed to this class
-            which provides the hook by which you can manipulate the QGIS
-            application at run time.
-        :type iface: QgsInterface
-        """
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -193,7 +192,7 @@ class QgsLayerParser:
 
     def show_online_file(self):
         host = self.dlg.inputHost.text()
-        path = self.dlg.inputJSONpath.text()[len('/var/www/mapa'):]
+        path = self.dlg.inputJSONpath.text()[len(self.JSONpathbase)-1:]
         webbrowser.get().open_new(host + path)
 
 
@@ -202,8 +201,8 @@ class QgsLayerParser:
         path = self.dlg.inputProject.currentText()
         if path == 'ctbb':
             path += os.path.sep + 'index'
-            if projectFilename != 'poum':
-                path += '_' + projectFilename.replace('.qgs', '')
+            if self.projectFilename != 'poum':
+                path += '_' + self.projectFilename.replace('.qgs', '')
             path += '.php'
         webbrowser.get().open_new(host + os.path.sep + path)
 
@@ -380,7 +379,14 @@ class QgsLayerParser:
 
     def update_path(self):
         self.dlg.inputJSONpath.clear()
-        self.dlg.inputJSONpath.setText('/var/www/mapa/'+self.dlg.inputProject.currentText()+'/js/data/')
+        self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText()+'/js/data/'
+        self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
+        self.dlg.inputJSONpath.setText(self.JSONpathfile)
+        self.dlg.inputQGSpath.clear()
+        self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
+        self.QGSpathfile = self.QGSpath + self.projectFilename
+        self.dlg.inputQGSpath.setText(self.QGSpathfile)
+
 
 
     def run(self):
@@ -405,15 +411,26 @@ class QgsLayerParser:
                 self.dlg.buttonShowProject.clicked.connect(self.show_project)
                 self.dlg.inputProject.currentTextChanged.connect(self.update_path)
 
-            self.dlg.inputJSONpath.clear()
-            JSONpath = '/var/www/mapa/' + self.dlg.inputProject.currentText() + '/js/data/'
-            JSONpathfile = JSONpath + projectFilename + '.json'
-            self.dlg.inputJSONpath.setText(JSONpathfile)
+            # set Project list
+            self.dlg.inputProject.clear()
+            self.dlg.inputProject.addItems({ 
+                "qgs-layer-parser-plugin-site",
+                "ssa",
+                "ctbb",
+                "geoparc-planejament"
+            })
 
+            # set JSON file path
+            self.dlg.inputJSONpath.clear()
+            self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText() + '/js/data/'
+            self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
+            self.dlg.inputJSONpath.setText(self.JSONpathfile)
+
+            # set QGS file path
             self.dlg.inputQGSpath.clear()
-            QGSpath = '/home/ubuntu/' + self.dlg.inputProject.currentText() + os.path.sep
-            QGSpathfile = QGSpath + projectFilename
-            self.dlg.inputQGSpath.setText(QGSpathfile)
+            self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
+            self.QGSpathfile = self.QGSpath + self.projectFilename
+            self.dlg.inputQGSpath.setText(self.QGSpathfile)
 
             # show the dialog
             self.dlg.show()
@@ -427,7 +444,7 @@ class QgsLayerParser:
                     or self.dlg.radioLocal.isChecked()):
 
                     # prepare file names
-                    project_file = projectFilename.replace('.qgs', '')
+                    project_file = self.projectFilename.replace('.qgs', '')
 
                     # parse QGS file to JSON
                     info=[]
@@ -436,20 +453,22 @@ class QgsLayerParser:
                         info.append(obj)
 
                     # write JSON to temporary file and show in browser
-                    filenameJSON = gettempdir()+os.path.sep+projectFilename+'.json'
+                    filenameJSON = gettempdir() + os.path.sep + self.projectFilename + '.json'
                     file = open(filenameJSON, 'w')
                     file.write(json.dumps(info))
                     file.close()
 
                     if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
                         # upload JSON file to server by FTP
-                        self.connectToFtp(filenameJSON, JSONpath)
+                        self.connectToFtp(filenameJSON, self.JSONpath)
+                        print(self.JSONpath)
                         filenameJSON = self.dlg.inputJSONpath.text()
                         
                         # upload QGS file to server by FTP
-                        self.connectToFtp(projectFolder + '/' + projectFilename, QGSpath)
+                        self.connectToFtp(self.projectFolder + '/' + self.projectFilename, self.QGSpath)
+                        print(self.QGSpath)
                         self.iface.messageBar().pushMessage(
-                          "Success", "QGS file " + projectFilename + " published at " + QGSpath,
+                          "Success", "QGS file " + self.projectFilename + " published at " + self.QGSpath,
                           level=Qgis.Success, duration=3)                    
                     
                     if self.dlg.radioProject.isChecked():

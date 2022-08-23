@@ -265,21 +265,6 @@
       <height>21</height>
      </rect>
     </property>
-    <item>
-     <property name="text">
-      <string>qgs-layer-parser-plugin-site</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>ssa</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>ctbb</string>
-     </property>
-    </item>
    </widget>
    <widget class="QPushButton" name="buttonShowProject">
     <property name="geometry">
