@@ -170,7 +170,7 @@ class QgsLayerParser:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/qgs_layer_parser/icon.png'
+        icon_path = os.path.join(os.path.dirname(__file__), "icon.png")
         self.add_action(
             icon_path,
             text=self.tr(u'Parse Layers and save as JSON'),
@@ -382,6 +382,7 @@ class QgsLayerParser:
         self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText()+'/js/data/'
         self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
         self.dlg.inputJSONpath.setText(self.JSONpathfile)
+        
         self.dlg.inputQGSpath.clear()
         self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
         self.QGSpathfile = self.QGSpath + self.projectFilename
@@ -461,12 +462,10 @@ class QgsLayerParser:
                     if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
                         # upload JSON file to server by FTP
                         self.connectToFtp(filenameJSON, self.JSONpath)
-                        print(self.JSONpath)
                         filenameJSON = self.dlg.inputJSONpath.text()
                         
                         # upload QGS file to server by FTP
                         self.connectToFtp(self.projectFolder + '/' + self.projectFilename, self.QGSpath)
-                        print(self.QGSpath)
                         self.iface.messageBar().pushMessage(
                           "Success", "QGS file " + self.projectFilename + " published at " + self.QGSpath,
                           level=Qgis.Success, duration=3)                    
