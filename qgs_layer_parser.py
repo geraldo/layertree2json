@@ -193,7 +193,7 @@ class QgsLayerParser:
     def show_online_file(self):
         host = self.dlg.inputHost.text()
         path = self.dlg.inputJSONpath.text()[len(self.JSONpathbase)-1:]
-        webbrowser.get().open_new(host + path)
+        webbrowser.open(host + path)
 
 
     def show_project(self):
@@ -204,7 +204,7 @@ class QgsLayerParser:
             if self.projectFilename != 'poum':
                 path += '_' + self.projectFilename.replace('.qgs', '')
             path += '.php'
-        webbrowser.get().open_new(host + os.path.sep + path)
+        webbrowser.open(host + os.path.sep + path)
 
 
     def radioStateLocal(self, state):
@@ -476,7 +476,7 @@ class QgsLayerParser:
                         if self.dlg.radioUpload.isChecked():
                             self.show_online_file()
                         else:
-                            webbrowser.get().open_new(filenameJSON)
+                            webbrowser.open(filenameJSON)
 
                     # message to user
                     self.iface.messageBar().pushMessage(
