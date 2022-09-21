@@ -44,15 +44,6 @@ class QgsLayerParser:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
-        self.projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
-        self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
-        self.JSONpathbase = '/var/www/mapa/'
-        self.JSONpath = self.JSONpathbase
-        self.JSONpathfile = ''
-        self.QGSpathbase = '/home/ubuntu/'
-        self.QGSpath = self.QGSpathbase
-        self.QGSpathfile = ''
-
         # Save reference to the QGIS interface
         self.iface = iface
         # initialize plugin directory
@@ -399,6 +390,16 @@ class QgsLayerParser:
                   level=Qgis.Warning, duration=3)
 
         else:
+            # define global varialbes
+            self.projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
+            self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
+            self.JSONpathbase = '/var/www/mapa/'
+            self.JSONpath = self.JSONpathbase
+            self.JSONpathfile = ''
+            self.QGSpathbase = '/home/ubuntu/'
+            self.QGSpath = self.QGSpathbase
+            self.QGSpathfile = ''
+
             # Create the dialog with elements (after translation) and keep reference
             # Only create GUI ONCE in callback, so that it will only load when the plugin is started
             if self.first_start == True:
