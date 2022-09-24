@@ -379,6 +379,13 @@ class QgsLayerParser:
         self.QGSpathfile = self.QGSpath + self.projectFilename
         self.dlg.inputQGSpath.setText(self.QGSpathfile)
 
+        QSettings().setValue('/QgsLayerParser/ActiveProject', self.dlg.inputProject.currentText())
+
+
+    def update_settings(self):
+        QSettings().setValue('/QgsLayerParser/ActiveHost', self.dlg.inputHost.text())
+        QSettings().setValue('/QgsLayerParser/ActiveUser', self.dlg.inputUser.text())
+        QSettings().setValue('/QgsLayerParser/ActivePassword', self.dlg.inputPassword.text())
 
 
     def run(self):
@@ -390,7 +397,7 @@ class QgsLayerParser:
                   level=Qgis.Warning, duration=3)
 
         else:
-            # define global varialbes
+            # define global variables
             self.projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
             self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
             self.JSONpathbase = '/var/www/mapa/'
@@ -400,11 +407,18 @@ class QgsLayerParser:
             self.QGSpath = self.QGSpathbase
             self.QGSpathfile = ''
 
+            self.selectedProject = QSettings().value('/QgsLayerParser/ActiveProject', '')
+
             # Create the dialog with elements (after translation) and keep reference
             # Only create GUI ONCE in callback, so that it will only load when the plugin is started
             if self.first_start == True:
                 self.first_start = False
                 self.dlg = QgsLayerParserDialog()
+
+                ### CAPTURE SETTINGS ###
+                self.dlg.inputHost.setText(QSettings().value('/QgsLayerParser/ActiveHost', ''))
+                self.dlg.inputUser.setText(QSettings().value('/QgsLayerParser/ActiveUser', ''))
+                self.dlg.inputPassword.setText(QSettings().value('/QgsLayerParser/ActivePassword', ''))
                 
                 self.dlg.radioLocal.toggled.connect(lambda:self.radioStateLocal(self.dlg.radioLocal))
                 self.dlg.radioUpload.toggled.connect(lambda:self.radioStateUpload(self.dlg.radioUpload))
@@ -412,27 +426,31 @@ class QgsLayerParser:
                 self.dlg.buttonShow.clicked.connect(self.show_online_file)
                 self.dlg.buttonShowProject.clicked.connect(self.show_project)
                 self.dlg.inputProject.currentTextChanged.connect(self.update_path)
+                self.dlg.inputHost.textChanged.connect(self.update_settings)
+                self.dlg.inputUser.textChanged.connect(self.update_settings)
+                self.dlg.inputPassword.textChanged.connect(self.update_settings)
 
-            # set Project list
-            self.dlg.inputProject.clear()
-            self.dlg.inputProject.addItems({ 
-                "qgs-layer-parser-plugin-site",
-                "ssa",
-                "ctbb",
-                "geoparc-planejament"
-            })
+                # set Project list
+                self.dlg.inputProject.clear()
+                self.dlg.inputProject.addItems({ 
+                    "qgs-layer-parser-plugin-site",
+                    "ssa",
+                    "ctbb",
+                    "geoparc-planejament"
+                })
+                self.dlg.inputProject.setCurrentText(self.selectedProject)
 
-            # set JSON file path
-            self.dlg.inputJSONpath.clear()
-            self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText() + '/js/data/'
-            self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
-            self.dlg.inputJSONpath.setText(self.JSONpathfile)
+                # set JSON file path
+                self.dlg.inputJSONpath.clear()
+                self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText() + '/js/data/'
+                self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
+                self.dlg.inputJSONpath.setText(self.JSONpathfile)
 
-            # set QGS file path
-            self.dlg.inputQGSpath.clear()
-            self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
-            self.QGSpathfile = self.QGSpath + self.projectFilename
-            self.dlg.inputQGSpath.setText(self.QGSpathfile)
+                # set QGS file path
+                self.dlg.inputQGSpath.clear()
+                self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
+                self.QGSpathfile = self.QGSpath + self.projectFilename
+                self.dlg.inputQGSpath.setText(self.QGSpathfile)
 
             # show the dialog
             self.dlg.show()
@@ -455,7 +473,8 @@ class QgsLayerParser:
                         info.append(obj)
 
                     # write JSON to temporary file and show in browser
-                    filenameJSON = gettempdir() + os.path.sep + self.projectFilename + '.json'
+                    #filenameJSON = gettempdir() + os.path.sep + self.projectFilename + '.json'
+                    filenameJSON = self.projectFolder + os.path.sep + self.projectFilename + '.json'
                     file = open(filenameJSON, 'w')
                     file.write(json.dumps(info))
                     file.close()
@@ -466,7 +485,7 @@ class QgsLayerParser:
                         filenameJSON = self.dlg.inputJSONpath.text()
                         
                         # upload QGS file to server by FTP
-                        self.connectToFtp(self.projectFolder + '/' + self.projectFilename, self.QGSpath)
+                        self.connectToFtp(self.projectFolder + os.path.sep + self.projectFilename, self.QGSpath)
                         self.iface.messageBar().pushMessage(
                           "Success", "QGS file " + self.projectFilename + " published at " + self.QGSpath,
                           level=Qgis.Success, duration=3)                    

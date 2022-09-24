@@ -96,7 +96,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>vps-faade0b8.vps.ovh.net</string>
+     <string>mapa.psig.es</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="inputUser">
