@@ -6,7 +6,7 @@
 name=Qgs Layer Parser
 qgisMinimumVersion=3.0
 description=Parse QGIS 3 project and write a JSON config file with layer information.
-version=0.1
+version=0.2
 author=Gerald Kogler / PSIG
 email=geraldo@servus.at
 

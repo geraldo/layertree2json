@@ -225,9 +225,12 @@ class QgsLayerParser:
         # print(uploadFile, uploadPath)
 
         try:
+            cnopts = pysftp.CnOpts()
+            cnopts.hostkeys = None
             sftp = pysftp.Connection(host=self.dlg.inputHost.text(), 
                 username=self.dlg.inputUser.text(), 
-                password=self.dlg.inputPassword.text())
+                password=self.dlg.inputPassword.text(), 
+                cnopts=cnopts)
 
             if (uploadFile and uploadPath):
                 sftp.chdir(uploadPath)
@@ -440,17 +443,17 @@ class QgsLayerParser:
                 })
                 self.dlg.inputProject.setCurrentText(self.selectedProject)
 
-                # set JSON file path
-                self.dlg.inputJSONpath.clear()
-                self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText() + '/js/data/'
-                self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
-                self.dlg.inputJSONpath.setText(self.JSONpathfile)
+            # set JSON file path
+            self.dlg.inputJSONpath.clear()
+            self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText() + '/js/data/'
+            self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
+            self.dlg.inputJSONpath.setText(self.JSONpathfile)
 
-                # set QGS file path
-                self.dlg.inputQGSpath.clear()
-                self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
-                self.QGSpathfile = self.QGSpath + self.projectFilename
-                self.dlg.inputQGSpath.setText(self.QGSpathfile)
+            # set QGS file path
+            self.dlg.inputQGSpath.clear()
+            self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
+            self.QGSpathfile = self.QGSpath + self.projectFilename
+            self.dlg.inputQGSpath.setText(self.QGSpathfile)
 
             # show the dialog
             self.dlg.show()
