@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>530</width>
-    <height>529</height>
+    <height>625</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>480</y>
+     <y>580</y>
      <width>491</width>
      <height>30</height>
     </rect>
@@ -39,7 +39,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>140</y>
+     <y>410</y>
      <width>491</width>
      <height>151</height>
     </rect>
@@ -143,7 +143,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>310</y>
+     <y>240</y>
      <width>491</width>
      <height>151</height>
     </rect>
@@ -261,22 +261,25 @@
      <rect>
       <x>90</x>
       <y>30</y>
-      <width>251</width>
+      <width>391</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="editable">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="buttonShowProject">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>30</y>
-      <width>121</width>
+      <x>90</x>
+      <y>120</y>
+      <width>191</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Show project</string>
+     <string>Show published project</string>
     </property>
    </widget>
   </widget>
@@ -386,6 +389,58 @@
     </property>
     <property name="text">
      <string>None</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupCache">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>140</y>
+     <width>491</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Use tile cache</string>
+   </property>
+   <widget class="QRadioButton" name="radioQgisserver">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>461</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>Avoiding the tile proxy should be avoided for production servers.</string>
+    </property>
+    <property name="text">
+     <string>No, directly request tiles from QGIS Server</string>
+    </property>
+    <property name="checked">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioMapproxy">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>30</y>
+      <width>461</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>In case you changed the symbology of any layer, you have to empty the specific mapproxy layer at /opt/mappproxy/ssa/cache_data
+In cased you changed any layer or group name, you have to change mapproxy configuration file at /opt/mappproxy/ssa/mapproxy.json</string>
+    </property>
+    <property name="text">
+     <string>Yes, use MapProxy </string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>

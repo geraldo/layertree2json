@@ -31,6 +31,7 @@ import json
 import unicodedata
 import webbrowser
 import pysftp
+from datetime import datetime
 
 # Initialize Qt resources from file resources.py
 from .resources import *
@@ -184,7 +185,8 @@ class QgsLayerParser:
     def show_online_file(self):
         host = self.dlg.inputHost.text()
         path = self.dlg.inputJSONpath.text()[len(self.JSONpathbase)-1:]
-        webbrowser.open(host + path)
+        # add timestamp to path to avoid cache
+        webbrowser.open(host + path + '?' + str(datetime.timestamp(datetime.now())))
 
 
     def show_project(self):
@@ -274,7 +276,6 @@ class QgsLayerParser:
         if isinstance(node, QgsLayerTreeLayer):
             obj['name'] = node.name()
             obj['qgisname'] = node.name()   # internal qgis layer name with all special characters
-            obj['mapproxy'] = project_file + "_layer_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
             obj['type'] = "layer"
             obj['indentifiable'] = node.layerId() not in QgsProject.instance().nonIdentifiableLayers()
             obj['visible'] = node.isVisible()
@@ -285,6 +286,9 @@ class QgsLayerParser:
             obj['fields'] = []
             obj['actions'] = []
             obj['external'] = node.name().startswith("¬")
+            
+            if self.dlg.radioMapproxy.isChecked():
+                obj['mapproxy'] = project_file + "_layer_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
             # remove first character
             if not obj['showlegend']:
@@ -350,7 +354,6 @@ class QgsLayerParser:
         elif isinstance(node, QgsLayerTreeGroup):
             obj['name'] = node.name()
             obj['qgisname'] = node.name()   # internal qgis layer name with all special characters
-            obj['mapproxy'] = project_file + "_group_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
             obj['type'] = "group"
             obj['visible'] = node.isVisible()
             obj['hidden'] = node.name().startswith("@")
@@ -360,6 +363,9 @@ class QgsLayerParser:
             obj['children'] = []
             #print("- group: ", node.name())
             #print(node.children())
+
+            if self.dlg.radioMapproxy.isChecked():
+                obj['mapproxy'] = project_file + "_group_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
             # remove first character
             if not obj['showlegend']:
