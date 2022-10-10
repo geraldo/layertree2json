@@ -384,7 +384,7 @@ class QgsLayerParser:
         self.dlg.inputJSONpath.setText(self.JSONpathfile)
         
         self.dlg.inputQGSpath.clear()
-        self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
+        self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + '/'
         self.QGSpathfile = self.QGSpath + self.projectFilename
         self.dlg.inputQGSpath.setText(self.QGSpathfile)
 
@@ -457,7 +457,7 @@ class QgsLayerParser:
 
             # set QGS file path
             self.dlg.inputQGSpath.clear()
-            self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + os.path.sep
+            self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + '/'
             self.QGSpathfile = self.QGSpath + self.projectFilename
             self.dlg.inputQGSpath.setText(self.QGSpathfile)
 
