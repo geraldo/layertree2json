@@ -513,6 +513,9 @@ class QgsLayerParser:
 
                     # prepare file names
                     project_file = self.projectFilename.replace('.qgs', '')
+                    # exception for project ctbb
+                    if self.projectName == 'ctbb':
+                        project_file = 'ctbb_' + project_file
 
                     # parse QGS file to JSON
                     info=[]
