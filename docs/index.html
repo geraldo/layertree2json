@@ -1,0 +1,96 @@
+<head>
+<style>
+body {
+    font:13.34px helvetica,arial,freesans,clean,sans-serif;
+    color:black;
+    line-height:1.4em;
+    background-color: #F8F8F8;
+    padding: 0.7em;
+}
+pre {
+    margin:1em 0;
+    font-size:12px;
+    background-color:#eee;
+    border:1px solid #ddd;
+    padding:2px;
+    color:#444;
+    overflow:auto;
+    -webkit-box-shadow:rgba(0,0,0,0.07) 0 1px 2px inset;
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;border-radius:3px;
+    display: inline;
+}
+pre code {
+    padding:0;
+    font-size:12px;
+    background-color:#eee;
+    border:none;
+}
+code {
+    font-size:12px;
+    background-color:#f8f8ff;
+    color:#444;
+    padding:0 .2em;
+    border:1px solid #dedede;
+}
+</style>
+</head>
+<body>
+<h1>Qgis Layer Parser Plugin</h1>
+<p><strong><em>Qgis Layer Parser</em></strong> makes it easy to syncronize your QGIS 3 proyect with a web map viewer. It parses the Qgis project and writes a JSON config file with layer information. Additionally it can handel the upload for you using SFTP.<p>
+<p>Notes:</p>
+<ul>
+    <li>It doesn't create a web map for you so, you still have to code your map and use the produced JSON file from their, for example to make a Layer Switcher.</li>
+    <li>Additionally you need to set up QGIS Server to produce the WMS tiles</li>
+    <li>WFS right now is not supported out of the box, but will be soon.</li>
+</ul> 
+<p>You can find the code and open issues at <a href="https://github.com/geraldo/qgs-layer-parser-plugin">https://github.com/geraldo/qgs-layer-parser-plugin</a></p>
+
+<h2>Installation</h2>
+<p>As the plugin offers the possiblity to upload the generated configuration files to a SFTP server, it uses <em>pysftp</em>. This Python library has some dependencies which can't be resolved easily on different operating systems. So for now you have to manually install pysftp:</p>
+<ol>
+    <li>Open console and go to <pre>qgis_installation_directory\apps\Python39\Scripts\</pre> (or just <pre>OSGeo4W_installation_directoy</pre> on Windows)</li>
+    <li><pre>pip install pysftp</pre></li>
+    <li>Install the plugin from QGIS</li>
+</ol>
+
+<h2 id="conf">Configuration</h2>
+<p>Initially you have to add a new project clicking <em>New</em> button:</p>
+<img src="new_project.png"/>
+<p>You have to fill out at least the field <em>Project Name</em>. On clicking <em>OK</em> some fields are filled out using default values. Opening up the configuration window again clicking <em>Edit</em>, you should edit the fields <em>QGS file</em>, <em>QGS path</em>, <em>JSON path</em> and <em>JSON folder</em> to your server settings:</p>
+<img src="edit_project.png"/>
+<p>There are 2 important directories to use a web map with QGIS Server:</p>
+<ol>
+    <li>Path to QGIS file used by QGIS Server: This path is formed using <em>QGS path</em> plus <em>QGS file</em> fields, for example: <pre>/home/me/newproject/newproject.qgs</pre></li>
+    <li>Path to JSON file used by web map: This path is formed using <em>JSON path</em> plus <em>JSON folder</em> plus the <em>QGS file</em> plus <em>.json</em>, for example: <pre>/var/www/html/newproject/js/data/newproject.qgs.json</pre></li>
+</ol>
+
+<h2>Test server</h2>
+<p>To test the server configuration, you have to fill out the field <em>Server Host</em>, which enables the buttons <em>Show published project</em> and <em>Show published JSON file</em>:</p>
+<ul>
+    <li></em><em>Show published project</em> opens a web browser with the URL build by <em>Host</em> plus <em>Name</em>, for example: <pre>https://mymapserver.com/newproject/</pre>. In this folder you should publish your web map.</li>
+    <li><em>Show published JSON file</em> opens a web browser with the URL build by <em>Host</em> plus <em>JSON folder</em>, for example: <pre>https://mymapserver.com/newproject/js/data/newproject.qgs.json</pre></li>
+</ul>
+
+<h2>FTP upload</h2>
+<p>To use the full power of the plugin and upload your settings to the server you also have to fill out <em>FTP User</em> and <em>FTP Password</em>. Then you should test the settings clicking the button <em>Test connection</em> which shows you the success using QGIS notifications.</p>
+
+<h2>Use the plugin</h2>
+<p>The plugin parser your active QGIS project and creates a JSON file with all your groups and layers. It reproduces the actual state of QGIS Layers Panel, so you should do the following preparations in order to get a nice result in your web map:</p>
+<ul>
+    <li>Group, order and name your groups and layers as you would like to see them in your web map.</li>
+    <li>Prepend character <pre>@</pre> to hide layers: This sets <pre>"hidden": true</pre> in JSON and could be used to tell the layer switcher to avoid showing a layer or group but render them by default.</li>
+    <li>Prepend character <pre>~</pre> to hide the legend: This sets <pre>"showLegend": false</pre> in JSON could be used to avoid rendering the legend in layer switcher.</li>
+    <li>Prepend character <pre>¬</pre> to load WMS layers directly: This sets <pre>"external": true</pre> in JSON. This option also looks up the layer source and writes the following parameters:
+        <ul>
+            <li><pre>"wmsUrl": ''</pre></li>
+            <li><pre>"wmsLayers": ''</pre></li>
+            <li><pre>"wmsProjection": ''</pre></li>
+        </ul>
+    </li>
+</ul>
+<img src="plugin.png"/>
+<p>Clicking <em>OK</em> starts the parser and saves the JSON file in the same folder of your .qgs file. By default is then opened in your default web browser:</p>
+<img src="json_file.png"/>
+<p>If you would like to upload the produced JSON and the QGIS project file to a web server, you have to fill the related fields in project configuration and change to Mode <em>Upload to server</em>.</p>
+</body>

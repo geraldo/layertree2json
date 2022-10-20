@@ -7,17 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>530</width>
-    <height>625</height>
+    <height>409</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Qgs Layer Parser</string>
   </property>
-  <widget class="QDialogButtonBox" name="button_box">
+  <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>580</y>
+     <y>360</y>
      <width>491</width>
      <height>30</height>
     </rect>
@@ -29,239 +29,30 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
    </property>
    <property name="centerButtons">
     <bool>false</bool>
    </property>
   </widget>
-  <widget class="QGroupBox" name="groupFtp">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>410</y>
-     <width>491</width>
-     <height>151</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>FTP connection data</string>
-   </property>
-   <widget class="QLabel" name="labelHost">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>71</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Host:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelUser">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>67</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>User:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelPassword">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>71</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Password:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputHost">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>30</y>
-      <width>391</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>mapa.psig.es</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputUser">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>60</y>
-      <width>391</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QgsPasswordLineEdit" name="inputPassword">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>90</y>
-      <width>391</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="buttonTest">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>120</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Test connection</string>
-    </property>
-   </widget>
-  </widget>
   <widget class="QGroupBox" name="groupDestination">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>240</y>
+     <y>20</y>
      <width>491</width>
-     <height>151</height>
+     <height>101</height>
     </rect>
    </property>
    <property name="title">
-    <string>Project data</string>
+    <string>Project</string>
    </property>
-   <widget class="QLabel" name="labelJSONpath">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>JSON File:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelQGSpath">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>71</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>QGS path:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputJSONpath">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>60</y>
-      <width>391</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">color: #808080; background-color: #F0F0F0;</string>
-    </property>
-    <property name="inputMethodHints">
-     <set>Qt::ImhUrlCharactersOnly</set>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputQGSpath">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>90</y>
-      <width>391</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Ubuntu</family>
-      <italic>false</italic>
-     </font>
-    </property>
-    <property name="autoFillBackground">
-     <bool>false</bool>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">color: #808080; background-color: #F0F0F0;</string>
-    </property>
-    <property name="inputMethodHints">
-     <set>Qt::ImhUrlCharactersOnly</set>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="readOnly">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="buttonShow">
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>120</y>
-      <width>191</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show published JSON file</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelProject">
+   <widget class="QComboBox" name="inputProjects">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>30</y>
-      <width>67</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Project:</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="inputProject">
-    <property name="geometry">
-     <rect>
-      <x>90</x>
-      <y>30</y>
-      <width>391</width>
+      <width>471</width>
       <height>21</height>
      </rect>
     </property>
@@ -269,17 +60,52 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="buttonShowProject">
+   <widget class="QPushButton" name="buttonNewProject">
     <property name="geometry">
      <rect>
-      <x>90</x>
-      <y>120</y>
-      <width>191</width>
+      <x>10</x>
+      <y>60</y>
+      <width>51</width>
       <height>25</height>
      </rect>
     </property>
     <property name="text">
-     <string>Show published project</string>
+     <string>New</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonEditProject">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>60</y>
+      <width>51</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Edit</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="buttonRemoveProject">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>60</y>
+      <width>61</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Remove</string>
     </property>
    </widget>
   </widget>
@@ -287,9 +113,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>20</y>
-     <width>231</width>
-     <height>101</height>
+     <y>140</y>
+     <width>491</width>
+     <height>81</height>
     </rect>
    </property>
    <property name="title">
@@ -331,9 +157,9 @@
   <widget class="QGroupBox" name="groupResult">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>20</y>
-     <width>241</width>
+     <x>20</x>
+     <y>240</y>
+     <width>491</width>
      <height>101</height>
     </rect>
    </property>
@@ -392,70 +218,11 @@
     </property>
    </widget>
   </widget>
-  <widget class="QGroupBox" name="groupCache">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>140</y>
-     <width>491</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Use tile cache</string>
-   </property>
-   <widget class="QRadioButton" name="radioQgisserver">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>461</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Avoiding the tile proxy should be avoided for production servers.</string>
-    </property>
-    <property name="text">
-     <string>No, directly request tiles from QGIS Server</string>
-    </property>
-    <property name="checked">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioMapproxy">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>461</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>In case you changed the symbology of any layer, you have to empty the specific mapproxy layer at /opt/mappproxy/ssa/cache_data
-In cased you changed any layer or group name, you have to change mapproxy configuration file at /opt/mappproxy/ssa/mapproxy.json</string>
-    </property>
-    <property name="text">
-     <string>Yes, use MapProxy </string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QgsPasswordLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>qgspasswordlineedit.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections>
   <connection>
-   <sender>button_box</sender>
+   <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>QgsLayerParserDialogBase</receiver>
    <slot>accept()</slot>
@@ -471,7 +238,7 @@ In cased you changed any layer or group name, you have to change mapproxy config
    </hints>
   </connection>
   <connection>
-   <sender>button_box</sender>
+   <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>QgsLayerParserDialogBase</receiver>
    <slot>reject()</slot>

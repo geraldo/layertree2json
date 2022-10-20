@@ -21,7 +21,7 @@
  *                                                                         *
  ***************************************************************************/
 """
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QFileInfo
+from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QFileInfo, QUrl
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
@@ -37,6 +37,7 @@ from datetime import datetime
 from .resources import *
 # Import the code for the dialog
 from .qgs_layer_parser_dialog import QgsLayerParserDialog
+from .qgs_layer_parser_dialog_settings import QgsLayerParserDialogSettings, settings
 import os.path
 from tempfile import gettempdir
 
@@ -165,9 +166,19 @@ class QgsLayerParser:
         icon_path = os.path.join(os.path.dirname(__file__), "icon.png")
         self.add_action(
             icon_path,
-            text=self.tr(u'Parse Layers and save as JSON'),
+            text=self.tr(u'Parse Layers and save JSON for web viewer'),
             callback=self.run,
             parent=self.iface.mainWindow())
+        # self.add_action(
+        #     icon_path,
+        #     text=self.tr(u'Settings'),
+        #     callback=self.run,
+        #     parent=self.iface.mainWindow())
+        # self.add_action(
+        #     icon_path,
+        #     text=self.tr(u'Help'),
+        #     callback=self.run,
+        #     parent=self.iface.mainWindow())
 
         # will be set False in run()
         self.first_start = True
@@ -183,21 +194,19 @@ class QgsLayerParser:
 
 
     def show_online_file(self):
-        host = self.dlg.inputHost.text()
-        path = self.dlg.inputJSONpath.text()[len(self.JSONpathbase)-1:]
         # add timestamp to path to avoid cache
-        webbrowser.open(host + path + '?' + str(datetime.timestamp(datetime.now())))
+        webbrowser.open(self.projectHost + '/' + self.projectJsonPath2 + self.projectQgsFile + '.json?' + str(datetime.timestamp(datetime.now())))
 
 
     def show_project(self):
-        host = self.dlg.inputHost.text()
-        path = self.dlg.inputProject.currentText()
+        path = self.projectName
+        # exception for project ctbb which has different sub projects
         if path == 'ctbb':
-            path += os.path.sep + 'index'
+            path += '/index'
             if self.projectFilename != 'poum':
                 path += '_' + self.projectFilename.replace('.qgs', '')
             path += '.php'
-        webbrowser.open(host + os.path.sep + path)
+        webbrowser.open(self.projectHost + '/' + path)
 
 
     def radioStateLocal(self, state):
@@ -210,28 +219,34 @@ class QgsLayerParser:
             self.dlg.radioProject.setEnabled(True)
 
 
-    def inputsFtpOk(self):
-        if (len(self.dlg.inputHost.text()) == 0 or
-            len(self.dlg.inputUser.text()) == 0 or
-            len(self.dlg.inputPassword.text()) == 0):
+    def inputsFtpOk(self, host=None, user=None, password=None):
+        host = host or self.projectHost
+        user = user or self.projectUser
+        password = password or self.projectPassword
+
+        if host == "" or user == "" or password == "":
 
             self.iface.messageBar().pushMessage(
-                    "Warning", "You have to fill out fields Host, User and Password in order to use FTP",
+                    "Warning", "You have to define Host, User and Password in Project Settings in order to use FTP",
                     level=Qgis.Warning, duration=3)
             return False
         else: 
             return True
 
 
-    def connectToFtp(self, uploadFile=False, uploadPath=False):
-        # print(uploadFile, uploadPath)
+    def connectToFtp(self, uploadFile=False, uploadPath=False, host=None, user=None, password=None):
+        host = host or self.projectHost
+        user = user or self.projectUser
+        password = password or self.projectPassword
+
+        #print(host, user, password, uploadFile, uploadPath)
 
         try:
             cnopts = pysftp.CnOpts()
             cnopts.hostkeys = None
-            sftp = pysftp.Connection(host=self.dlg.inputHost.text(), 
-                username=self.dlg.inputUser.text(), 
-                password=self.dlg.inputPassword.text(), 
+            sftp = pysftp.Connection(host=host, 
+                username=user, 
+                password=password, 
                 cnopts=cnopts)
 
             if (uploadFile and uploadPath):
@@ -239,23 +254,18 @@ class QgsLayerParser:
                 sftp.put(uploadFile)
 
                 self.iface.messageBar().pushMessage(
-                    "Success", "File UPLOADED to host " + self.dlg.inputHost.text(),
+                    "Success", "File UPLOADED to host " + host,
                     level=Qgis.Success, duration=3)
             else:
                 self.iface.messageBar().pushMessage(
-                    "Success", "FTP connection ESTABLISHED to host " + self.dlg.inputHost.text(),
+                    "Success", "FTP connection ESTABLISHED to host " + host,
                     level=Qgis.Success, duration=3)
 
             sftp.close()
         except:
             self.iface.messageBar().pushMessage(
-                "Warning", "FTP connection FAILED to host " + self.dlg.inputHost.text(),
+                "Warning", "FTP connection FAILED to host " + host,
                 level=Qgis.Warning, duration=3)
-
-
-    def test_connection(self):
-        if (self.inputsFtpOk()):
-            self.connectToFtp()
  
 
     def replaceSpecialChar(self, text):
@@ -287,7 +297,7 @@ class QgsLayerParser:
             obj['actions'] = []
             obj['external'] = node.name().startswith("¬")
             
-            if self.dlg.radioMapproxy.isChecked():
+            if self.settingsDlg.radioMapproxy.isChecked():
                 obj['mapproxy'] = project_file + "_layer_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
             # remove first character
@@ -364,7 +374,7 @@ class QgsLayerParser:
             #print("- group: ", node.name())
             #print(node.children())
 
-            if self.dlg.radioMapproxy.isChecked():
+            if self.settingsDlg.radioMapproxy.isChecked():
                 obj['mapproxy'] = project_file + "_group_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
             # remove first character
@@ -372,33 +382,91 @@ class QgsLayerParser:
                 obj['name'] = node.name()[1:]
 
             for child in node.children():
-                obj['children'].append(self.getLayerTree(child, project_file))
+                if not child.name().startswith("¡"):
+                    obj['children'].append(self.getLayerTree(child, project_file))
 
         return obj
 
 
-    def update_path(self):
-        self.dlg.inputJSONpath.clear()
-        self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText()+'/js/data/'
-        self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
-        self.dlg.inputJSONpath.setText(self.JSONpathfile)
-        
-        self.dlg.inputQGSpath.clear()
-        self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + '/'
-        self.QGSpathfile = self.QGSpath + self.projectFilename
-        self.dlg.inputQGSpath.setText(self.QGSpathfile)
+    def update_project_vars(self):
+        if settings.activeProject != -1:
+            project = settings.userProjects[self.dlg.inputProjects.currentIndex()]
+            self.projectName = project[0]
+            self.projectQgsFile = project[1]
+            self.projectQgsPath = project[2]
+            self.projectJsonPath = project[3]
+            self.projectJsonPath2 = project[4]
+            self.projectHost = project[5]
+            self.projectUser = project[6]
+            self.projectPassword = project[7]
 
-        QSettings().setValue('/QgsLayerParser/ActiveProject', self.dlg.inputProject.currentText())
-
-
-    def update_settings(self):
-        QSettings().setValue('/QgsLayerParser/ActiveHost', self.dlg.inputHost.text())
-        QSettings().setValue('/QgsLayerParser/ActiveUser', self.dlg.inputUser.text())
-        QSettings().setValue('/QgsLayerParser/ActivePassword', self.dlg.inputPassword.text())
+            QSettings().setValue('/QgsLayerParser/ActiveProject', self.dlg.inputProjects.currentIndex())
 
 
+    """settings dialog"""
+    def settings(self):
+        '''Show the settings dialog box'''
+        self.settingsDlg.show()
+
+    def help(self):
+        '''Display a help page'''
+        url = QUrl.fromLocalFile(os.path.dirname(__file__) + "/docs/index.html").toString()
+        webbrowser.open(url, new=2)
+
+    def addProject(self):
+        self.settingsDlg.inputProjectName.clear()
+        self.settingsDlg.inputQgsFile.clear()
+        self.settingsDlg.inputQgsPath.clear()
+        self.settingsDlg.inputJsonPath.clear()
+        self.settingsDlg.inputJsonPath2.clear()
+        self.settingsDlg.inputHost.clear()
+        self.settingsDlg.inputUser.clear()
+        self.settingsDlg.inputPassword.clear()
+        self.settingsDlg.isNew = True
+        self.settingsDlg.show()
+
+    def editProject(self):
+        if self.dlg.inputProjects.count() > 0:
+            index = self.dlg.inputProjects.currentIndex()
+            if index >= 0:
+                userProject = settings.userProjects[index]
+                self.settingsDlg.inputProjectName.setText(userProject[0])
+                self.settingsDlg.inputQgsFile.setText(userProject[1])
+                self.settingsDlg.inputQgsPath.setText(userProject[2])
+                self.settingsDlg.inputJsonPath.setText(userProject[3])
+                self.settingsDlg.inputJsonPath2.setText(userProject[4])
+                self.settingsDlg.inputHost.setText(userProject[5])
+                self.settingsDlg.inputUser.setText(userProject[6])
+                self.settingsDlg.inputPassword.setText(userProject[7])
+                self.settingsDlg.isNew = False
+                self.settingsDlg.show()
+
+    def removeProject(self):
+        if self.dlg.inputProjects.count() > 0:
+            index = self.dlg.inputProjects.currentIndex()
+            if index >= 0:
+                del settings.userProjects[index]
+                if settings.userProjects:
+                    QSettings().setValue('/QgsLayerParser/UserProjects', settings.userProjects)
+                else:
+                    QSettings().setValue('/QgsLayerParser/UserProjects', 0)
+                
+                if self.dlg.inputProjects.count() > 0:
+                    QSettings().setValue('/QgsLayerParser/ActiveProject', 0)
+
+                names = []
+                for item in settings.userProjects:
+                    names.append(item[0])
+                self.dlg.inputProjects.clear()
+                self.dlg.inputProjects.addItems(names)
+
+                if len(names) == 0:
+                    self.dlg.buttonEditProject.setEnabled(False);
+                    self.dlg.buttonRemoveProject.setEnabled(False);
+
+
+    """Run method that performs all the real work"""
     def run(self):
-        """Run method that performs all the real work"""
 
         if (QgsProject.instance().fileName() == ""):
             self.iface.messageBar().pushMessage(
@@ -409,12 +477,6 @@ class QgsLayerParser:
             # define global variables
             self.projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
             self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
-            self.JSONpathbase = '/var/www/mapa/'
-            self.JSONpath = self.JSONpathbase
-            self.JSONpathfile = ''
-            self.QGSpathbase = '/home/ubuntu/'
-            self.QGSpath = self.QGSpathbase
-            self.QGSpathfile = ''
 
             self.selectedProject = QSettings().value('/QgsLayerParser/ActiveProject', '')
 
@@ -423,43 +485,27 @@ class QgsLayerParser:
             if self.first_start == True:
                 self.first_start = False
                 self.dlg = QgsLayerParserDialog()
-
-                ### CAPTURE SETTINGS ###
-                self.dlg.inputHost.setText(QSettings().value('/QgsLayerParser/ActiveHost', ''))
-                self.dlg.inputUser.setText(QSettings().value('/QgsLayerParser/ActiveUser', ''))
-                self.dlg.inputPassword.setText(QSettings().value('/QgsLayerParser/ActivePassword', ''))
+                self.settingsDlg = QgsLayerParserDialogSettings(self, self.iface, self.iface.mainWindow())
                 
                 self.dlg.radioLocal.toggled.connect(lambda:self.radioStateLocal(self.dlg.radioLocal))
                 self.dlg.radioUpload.toggled.connect(lambda:self.radioStateUpload(self.dlg.radioUpload))
-                self.dlg.buttonTest.clicked.connect(self.test_connection)
-                self.dlg.buttonShow.clicked.connect(self.show_online_file)
-                self.dlg.buttonShowProject.clicked.connect(self.show_project)
-                self.dlg.inputProject.currentTextChanged.connect(self.update_path)
-                self.dlg.inputHost.textChanged.connect(self.update_settings)
-                self.dlg.inputUser.textChanged.connect(self.update_settings)
-                self.dlg.inputPassword.textChanged.connect(self.update_settings)
+                self.dlg.inputProjects.currentTextChanged.connect(self.update_project_vars)
 
-                # set Project list
-                self.dlg.inputProject.clear()
-                self.dlg.inputProject.addItems({ 
-                    "qgs-layer-parser-plugin-site",
-                    "ssa",
-                    "ctbb",
-                    "geoparc-planejament"
-                })
-                self.dlg.inputProject.setCurrentText(self.selectedProject)
+                self.dlg.buttonNewProject.clicked.connect(self.addProject)
+                self.dlg.buttonEditProject.clicked.connect(self.editProject)
+                self.dlg.buttonRemoveProject.clicked.connect(self.removeProject)
+                self.dlg.buttonBox.helpRequested.connect(self.help)
 
-            # set JSON file path
-            self.dlg.inputJSONpath.clear()
-            self.JSONpath = self.JSONpathbase + self.dlg.inputProject.currentText() + '/js/data/'
-            self.JSONpathfile = self.JSONpath + self.projectFilename + '.json'
-            self.dlg.inputJSONpath.setText(self.JSONpathfile)
+            # set Project list
+            names = []
+            for item in settings.userProjects:
+                names.append(item[0])
+            self.dlg.inputProjects.clear()
+            self.dlg.inputProjects.addItems(names)
+            self.dlg.inputProjects.setCurrentIndex(int(settings.activeProject))
 
-            # set QGS file path
-            self.dlg.inputQGSpath.clear()
-            self.QGSpath = self.QGSpathbase + self.dlg.inputProject.currentText() + '/'
-            self.QGSpathfile = self.QGSpath + self.projectFilename
-            self.dlg.inputQGSpath.setText(self.QGSpathfile)
+            self.dlg.buttonEditProject.setEnabled(len(names) > 0);
+            self.dlg.buttonRemoveProject.setEnabled(len(names) > 0);
 
             # show the dialog
             self.dlg.show()
@@ -478,11 +524,10 @@ class QgsLayerParser:
                     # parse QGS file to JSON
                     info=[]
                     for group in QgsProject.instance().layerTreeRoot().children():
-                        obj = self.getLayerTree(group, project_file)
-                        info.append(obj)
+                        if not group.name().startswith("¡"):
+                            info.append(self.getLayerTree(group, project_file))
 
                     # write JSON to temporary file and show in browser
-                    #filenameJSON = gettempdir() + os.path.sep + self.projectFilename + '.json'
                     filenameJSON = self.projectFolder + os.path.sep + self.projectFilename + '.json'
                     file = open(filenameJSON, 'w')
                     file.write(json.dumps(info))
@@ -490,13 +535,14 @@ class QgsLayerParser:
 
                     if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
                         # upload JSON file to server by FTP
-                        self.connectToFtp(filenameJSON, self.JSONpath)
-                        filenameJSON = self.dlg.inputJSONpath.text()
+                        self.connectToFtp(filenameJSON, self.projectJsonPath + self.projectJsonPath2)
+                        # public URL of JSON file
+                        filenameJSON = self.projectHost + '/' + self.projectJsonPath2 + self.projectQgsFile + '.json'
                         
                         # upload QGS file to server by FTP
-                        self.connectToFtp(self.projectFolder + os.path.sep + self.projectFilename, self.QGSpath)
+                        self.connectToFtp(self.projectFolder + os.path.sep + self.projectFilename, self.projectQgsPath)
                         self.iface.messageBar().pushMessage(
-                          "Success", "QGS file " + self.projectFilename + " published at " + self.QGSpath,
+                          "Success", "QGS file " + self.projectFilename + " published at " + self.projectQgsPath,
                           level=Qgis.Success, duration=3)                    
                     
                     if self.dlg.radioProject.isChecked():
