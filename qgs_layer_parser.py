@@ -384,7 +384,7 @@ class QgsLayerParser:
 
 
     def update_project_vars(self):
-        if settings.activeProject != -1:
+        if settings.activeProject != -1 and self.dlg.inputProjects.currentIndex() >= 0:
             project = settings.userProjects[self.dlg.inputProjects.currentIndex()]
             self.projectName = project[0]
             self.projectQgsFile = project[1]
@@ -495,7 +495,8 @@ class QgsLayerParser:
                 names.append(item[0])
             self.dlg.inputProjects.clear()
             self.dlg.inputProjects.addItems(names)
-            self.dlg.inputProjects.setCurrentIndex(int(settings.activeProject))
+            if settings.activeProject >= 0:
+                self.dlg.inputProjects.setCurrentIndex(int(settings.activeProject))
 
             self.dlg.buttonEditProject.setEnabled(len(names) > 0);
             self.dlg.buttonRemoveProject.setEnabled(len(names) > 0);
