@@ -163,22 +163,17 @@ class QgsLayerParser:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = os.path.join(os.path.dirname(__file__), "icon.png")
         self.add_action(
-            icon_path,
-            text=self.tr(u'Parse Layers and save JSON for web viewer'),
+            os.path.join(os.path.dirname(__file__), "icon.png"),
+            text=self.tr(u'Parse Layers and save JSON'),
             callback=self.run,
             parent=self.iface.mainWindow())
-        # self.add_action(
-        #     icon_path,
-        #     text=self.tr(u'Settings'),
-        #     callback=self.run,
-        #     parent=self.iface.mainWindow())
-        # self.add_action(
-        #     icon_path,
-        #     text=self.tr(u'Help'),
-        #     callback=self.run,
-        #     parent=self.iface.mainWindow())
+        self.add_action(
+            os.path.join(os.path.dirname(__file__), "help.svg"),
+            text=self.tr(u'Help'),
+            callback=self.help,
+            parent=self.iface.mainWindow(),
+            add_to_toolbar=False)
 
         # will be set False in run()
         self.first_start = True
