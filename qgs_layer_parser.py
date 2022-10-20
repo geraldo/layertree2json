@@ -473,8 +473,6 @@ class QgsLayerParser:
             self.projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
             self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
 
-            self.selectedProject = QSettings().value('/QgsLayerParser/ActiveProject', '')
-
             # Create the dialog with elements (after translation) and keep reference
             # Only create GUI ONCE in callback, so that it will only load when the plugin is started
             if self.first_start == True:
@@ -532,7 +530,7 @@ class QgsLayerParser:
                         # upload JSON file to server by FTP
                         self.connectToFtp(filenameJSON, self.projectJsonPath + self.projectJsonPath2)
                         # public URL of JSON file
-                        filenameJSON = self.projectHost + '/' + self.projectJsonPath2 + self.projectQgsFile + '.json'
+                        filenameJSON = self.projectHost + '/' + self.projectJsonPath2 + self.projectFilename + '.json'
                         
                         # upload QGS file to server by FTP
                         self.connectToFtp(self.projectFolder + os.path.sep + self.projectFilename, self.projectQgsPath)
