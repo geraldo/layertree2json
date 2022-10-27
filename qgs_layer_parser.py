@@ -495,7 +495,7 @@ class QgsLayerParser:
                 names.append(item[0])
             self.dlg.inputProjects.clear()
             self.dlg.inputProjects.addItems(names)
-            if settings.activeProject >= 0:
+            if type(settings.activeProject) == int and settings.activeProject >= 0:
                 self.dlg.inputProjects.setCurrentIndex(int(settings.activeProject))
 
             self.dlg.buttonEditProject.setEnabled(len(names) > 0);
