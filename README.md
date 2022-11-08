@@ -4,10 +4,11 @@ Parse QGIS 3 project and write a JSON config file with layer information.
 
 **Qgis Layer Parser** makes it easy to syncronize your QGIS 3 proyect with a web map viewer. It parses the Qgis project and writes a JSON config file with layer information. Additionally it can handel the upload for you using SFTP.
 
-Notes:
-	- It doesn't create a web map for you so, you still have to code your map and use the produced JSON file from their, for example to make a Layer Switcher.
-    - Additionally you need to set up QGIS Server to produce the WMS tiles.
-    - WFS right now is not supported out of the box, but will be soon.
+*Notes:*
+
+- It doesn't create a web map for you so, you still have to code your map and use the produced JSON file from their, for example to make a Layer Switcher.
+- Additionally you need to set up QGIS Server to produce the WMS tiles.
+- WFS right now is not supported out of the box, but will be soon.
 
 ## Installation
 
