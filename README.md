@@ -26,16 +26,18 @@ You have to fill out at least the field *Project Name*. On clicking *OK* some fi
 ![Edit project](docs/edit_project.png)
 
 There are 2 important directories to use a web map with QGIS Server:
-	1. Path to QGIS file used by QGIS Server: This path is formed using *QGS path* plus *QGS file* fields, for example: `/home/me/newproject/newproject.qgs`
-    2. Path to JSON file used by web map: This path is formed using *JSON path* plus *JSON folder* plus the *QGS file* plus *.json*, for example: `/var/www/html/newproject/js/data/newproject.qgs.json`
+
+1. Path to QGIS file used by QGIS Server: This path is formed using *QGS path* plus *QGS file* fields, for example: `/home/me/newproject/newproject.qgs`
+2. Path to JSON file used by web map: This path is formed using *JSON path* plus *JSON folder* plus the *QGS file* plus *.json*, for example: `/var/www/html/newproject/js/data/newproject.qgs.json`
 
 *Note:* For now the name of the *QGS file* has to be exactly the same as the local .qgs file you use for this project.
 
 ## Test server connection
 
 To test the server configuration, you have to fill out the field *Server Host*, which enables the buttons *Show published project* and *Show published JSON file*:
-	- **Show published project** opens a web browser with the URL build by *Host* plus *Name*, for example: `https://mymapserver.com/newproject/`. In this folder you should publish your web map.
-    - *Show published JSON file* opens a web browser with the URL build by *Host* plus *JSON folder*, for example: `https://mymapserver.com/newproject/js/data/newproject.qgs.json`
+
+- **Show published project** opens a web browser with the URL build by *Host* plus *Name*, for example: `https://mymapserver.com/newproject/`. In this folder you should publish your web map.
+- *Show published JSON file* opens a web browser with the URL build by *Host* plus *JSON folder*, for example: `https://mymapserver.com/newproject/js/data/newproject.qgs.json`
 
 ## FTP upload
 
@@ -44,13 +46,14 @@ To use the full power of the plugin and upload your settings to the server you a
 ## Use the plugin
 
 The plugin parser your active QGIS project and creates a JSON file with all your groups and layers. It reproduces the actual state of QGIS Layers Panel, so you should do the following preparations in order to get a nice result in your web map:
-	- Group, order and name your groups and layers as you would like to see them in your web map.
-    - Prepend character `@` to hide layers: This sets `"hidden": true` in JSON and could be used to tell the layer switcher to avoid showing a layer or group but render them by default.
-    - Prepend character `~` to hide the legend: This sets `"showLegend": false` in JSON could be used to avoid rendering the legend in layer switcher.
-    - Prepend character `¬` to load WMS layers directly: This sets `"external": true` in JSON. This option also looks up the layer source and writes the following parameters:
-        - `"wmsUrl": ''`
-        - `"wmsLayers": ''`
-        - `"wmsProjection": ''`
+
+- Group, order and name your groups and layers as you would like to see them in your web map.
+- Prepend character `@` to hide layers: This sets `"hidden": true` in JSON and could be used to tell the layer switcher to avoid showing a layer or group but render them by default.
+- Prepend character `~` to hide the legend: This sets `"showLegend": false` in JSON could be used to avoid rendering the legend in layer switcher.
+- Prepend character `¬` to load WMS layers directly: This sets `"external": true` in JSON. This option also looks up the layer source and writes the following parameters:
+    - `"wmsUrl": ''`
+    - `"wmsLayers": ''`
+    - `"wmsProjection": ''`
     
 ![Plugin use](docs/plugin.png)
 
