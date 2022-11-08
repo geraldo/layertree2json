@@ -1,8 +1,8 @@
-# QGS Parse Layer Plugin
+# LayerTree2JSON
 
-Parse QGIS 3 project and write a JSON config file with layer information.
+QGIS plugin which writes a JSON config file with layer information for the open QGIS 3 project.
 
-**Qgis Layer Parser** makes it easy to syncronize your QGIS 3 proyect with a web map viewer. It parses the Qgis project and writes a JSON config file with layer information. Additionally it can handel the upload for you using SFTP.
+**LayerTree2JSON** makes it easy to syncronize your QGIS 3 proyect with a web map viewer. It parses the Qgis project and writes a JSON config file with layer information. Additionally it can handel the upload for you using SFTP.
 
 *Notes:*
 
@@ -46,7 +46,7 @@ To use the full power of the plugin and upload your settings to the server you a
 
 ## Use the plugin
 
-The plugin parser your active QGIS project and creates a JSON file with all your groups and layers. It reproduces the actual state of QGIS Layers Panel, so you should do the following preparations in order to get a nice result in your web map:
+The plugin does parse your active QGIS project and creates a JSON file with all your groups and layers. It reproduces the actual state of QGIS Layers Panel, so you should do the following preparations in order to get a nice result in your web map:
 
 - Group, order and name your groups and layers as you would like to see them in your web map.
 - Prepend character `@` to hide layers: This sets `"hidden": true` in JSON and could be used to tell the layer switcher to avoid showing a layer or group but render them by default.
@@ -59,6 +59,7 @@ The plugin parser your active QGIS project and creates a JSON file with all your
 ![Plugin use](docs/plugin.png)
 
 Clicking *OK* starts the parser and saves the JSON file in the same folder of your .qgs file. By default is then opened in your default web browser:
+
 ![JSON output](docs/json_file.png)
 
 If you would like to upload the produced JSON and the QGIS project file to a web server, you have to fill the related fields in project configuration and change to Mode *Upload to server*.
