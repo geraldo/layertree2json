@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QgsLayerParserDialogBase</class>
- <widget class="QDialog" name="QgsLayerParserDialogBase">
+ <class>LayerTree2JSONDialogBase</class>
+ <widget class="QDialog" name="LayerTree2JSONDialogBase">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Qgs Layer Parser</string>
+   <string>LayerTree2JSON</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
@@ -122,6 +122,9 @@
     <string>Mode</string>
    </property>
    <widget class="QRadioButton" name="radioUpload">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -224,7 +227,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>QgsLayerParserDialogBase</receiver>
+   <receiver>LayerTree2JSONDialogBase</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -240,7 +243,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>QgsLayerParserDialogBase</receiver>
+   <receiver>LayerTree2JSONDialogBase</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

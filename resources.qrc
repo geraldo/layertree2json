@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/qgs_layer_parser" >
+    <qresource prefix="/plugins/layertree2json" >
         <file>icon.png</file>
     </qresource>
 </RCC>

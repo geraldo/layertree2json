@@ -1,53 +1,23 @@
-# This file contains metadata for your plugin.
-
-# This file should be included when you package your plugin.
-
-# Mandatory items:
-
 [general]
-name=Qgs Layer Parser
+name=LayerTree2JSON
 qgisMinimumVersion=3.0
 description=Parse QGIS 3 project and write a JSON config file with layer information.
-version=0.2
+version=0.3
 author=Gerald Kogler / PSIG
 email=geraldo@servus.at
 
-about=This plugin parses QGIS 3 projects and writes a JSON config file with information representing the layer tree. This file than automatically can be uploaded to a webserver using a SFTP connection, so so for now you have to manually install pysftp:
-1. Open console and go to qgis_installation_directory\apps\Python39\Scripts\ (or just OSGeo4W_installation_directoy on Windows)
-2. Type: pip install pysftp
-3. Install the plugin from QGIS
-Usually the JSON config file then is used by a web viewer to show a layer switcher. Documentation at https://github.com/geraldo/qgs-layer-parser-plugin
+about=This plugin parses QGIS 3 projects and writes a JSON config file with information representing the layer tree. This file than automatically can be uploaded to a webserver using a SFTP connection, so so for now you have to manually install pysftp: 1. Open console and go to qgis_installation_directory\apps\Python39\Scripts\ (or just OSGeo4W_installation_directoy on Windows) 2. Type: pip install pysftp 3. Install the plugin from QGIS Usually the JSON config file then is used by a web viewer to show a layer switcher. Documentation at https://github.com/geraldo/layertree2json
 
-tracker=https://github.com/geraldo/qgs-layer-parser-plugin/issues
-repository=https://github.com/geraldo/qgs-layer-parser-plugin
-# End of mandatory metadata
+tracker=https://github.com/geraldo/layertree2json/issues
+repository=https://github.com/geraldo/layertree2json
 
 # Recommended items:
-
 hasProcessingProvider=no
-# Uncomment the following line and add your changelog:
-# changelog=
-
-# Tags are comma separated with spaces allowed
-tags=python
-
-homepage=https://github.com/geraldo/qgs-layer-parser-plugin
+tags=html, web, export, json, webmap, webmaps
+homepage=https://github.com/geraldo/layertree2json
 category=Web
 icon=icon.png
-# experimental flag
 experimental=True
-
-# deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
-
-# Since QGIS 3.8, a comma separated list of plugins to be installed
-# (or upgraded) can be specified.
-# Check the documentation for more information.
-# plugin_dependencies=
-
-Category of the plugin: Raster, Vector, Database or Web
-# category=
-
-# If the plugin can run on QGIS Server.
 server=False
 

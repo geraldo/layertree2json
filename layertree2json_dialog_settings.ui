@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QgsLayerParserDialogBase</class>
- <widget class="QDialog" name="QgsLayerParserDialogBase">
+ <class>LayerTree2JSONDialogBase</class>
+ <widget class="QDialog" name="LayerTree2JSONDialogBase">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Qgs Layer Parser</string>
+   <string>LayerTree2JSON</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBoxSettings">
    <property name="geometry">
@@ -380,7 +380,7 @@ In cased you changed any layer or group name, you have to change mapproxy config
   <connection>
    <sender>buttonBoxSettings</sender>
    <signal>accepted()</signal>
-   <receiver>QgsLayerParserDialogBase</receiver>
+   <receiver>LayerTree2JSONDialogBase</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -396,7 +396,7 @@ In cased you changed any layer or group name, you have to change mapproxy config
   <connection>
    <sender>buttonBoxSettings</sender>
    <signal>rejected()</signal>
-   <receiver>QgsLayerParserDialogBase</receiver>
+   <receiver>LayerTree2JSONDialogBase</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

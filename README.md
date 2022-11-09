@@ -56,7 +56,7 @@ The plugin does parse your active QGIS project and creates a JSON file with all 
     - `"wmsLayers": ''`
     - `"wmsProjection": ''`
     
-![Plugin use](docs/plugin.png)
+![Plugin use](docs/use_plugin.png)
 
 Clicking *OK* starts the parser and saves the JSON file in the same folder of your .qgs file. By default is then opened in your default web browser:
 
