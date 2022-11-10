@@ -69,15 +69,9 @@ settings = Settings()
 
 class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
     def __init__(self, LayerTree2JSON, iface, parent=None):
-        """Constructor."""
         super(LayerTree2JSONDialogSettings, self).__init__(parent)
         self.LayerTree2JSON = LayerTree2JSON
         self.iface = iface
-        # Set up the user interface from Designer through FORM_CLASS.
-        # After self.setupUi() you can access any designer object by doing
-        # self.<objectname>, and you can use autoconnect slots - see
-        # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
-        # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
         self.isNew = False

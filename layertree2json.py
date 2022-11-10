@@ -33,9 +33,7 @@ import webbrowser
 import pysftp
 from datetime import datetime
 
-# Initialize Qt resources from file resources.py
 from .resources import *
-# Import the code for the dialog
 from .layertree2json_dialog import LayerTree2JSONDialog
 from .layertree2json_dialog_settings import LayerTree2JSONDialogSettings, settings
 import os.path
@@ -43,7 +41,6 @@ from tempfile import gettempdir
 
 
 class LayerTree2JSON:
-    """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
         # Save reference to the QGIS interface
@@ -222,8 +219,8 @@ class LayerTree2JSON:
         if host == "" or user == "" or password == "":
 
             self.iface.messageBar().pushMessage(
-                    "Warning", "You have to define Host, User and Password in Project Settings in order to use FTP",
-                    level=Qgis.Warning, duration=3)
+                "Warning", "You have to define Host, User and Password in Project Settings in order to use FTP",
+                level=Qgis.Warning, duration=3)
             return False
         else: 
             return True
@@ -233,8 +230,6 @@ class LayerTree2JSON:
         host = host or self.projectHost
         user = user or self.projectUser
         password = password or self.projectPassword
-
-        #print(host, user, password, uploadFile, uploadPath)
 
         try:
             cnopts = pysftp.CnOpts()
@@ -275,6 +270,7 @@ class LayerTree2JSON:
                       if unicodedata.category(c) != 'Mn')
 
 
+    # code based on https://github.com/geraldo/qgs-layer-parser
     def getLayerTree(self, node, project_file):
         obj = {}
 
@@ -481,7 +477,6 @@ class LayerTree2JSON:
             self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
 
             # Create the dialog with elements (after translation) and keep reference
-            # Only create GUI ONCE in callback, so that it will only load when the plugin is started
             if self.first_start == True:
                 self.first_start = False
                 self.dlg = LayerTree2JSONDialog()
@@ -510,8 +505,8 @@ class LayerTree2JSON:
 
             # show the dialog
             self.dlg.show()
-            # Run the dialog event loop
             result = self.dlg.exec_()
+
             # See if OK was pressed
             if result:
 
