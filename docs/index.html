@@ -39,14 +39,14 @@ code {
 <h1>LayerTree2JSON</h1>
 <p>QGIS plugin which writes a JSON config file with layer information for the open QGIS 3 project.</p>
 
-<p><strong><em>LayerTree2JSON</em></strong> makes it easy to syncronize your QGIS 3 proyect with a web map viewer. It parses the Qgis project and writes a JSON config file with layer information. Additionally it can handel the upload for you using SFTP.<p>
+<p><strong><em>LayerTree2JSON</em></strong> makes it easy to syncronize your QGIS 3 proyect with a web map viewer. It parses the Qgis project and writes a JSON config file with layer information. Additionally it can handle the upload using SFTP.<p>
 <p>Notes:</p>
 <ul>
-    <li>It doesn't create a web map for you so, you still have to code your map and use the produced JSON file from their, for example to make a Layer Switcher.</li>
-    <li>Additionally you need to set up QGIS Server to produce the WMS tiles</li>
+    <li>It doesn't create a web map for you so, you still have to code your map and use the produced JSON file from there, for example to make a Layer Switcher. Have a look at https://github.com/geraldo/qgs-layer-parser-plugin-site to see a minimal map viewer done with Openlayers.</li>
+    <li>Additionally you need to set up QGIS Server to produce the WMS tiles.</li>
     <li>WFS right now is not supported out of the box, but will be soon.</li>
 </ul> 
-<p>You can find the code and open issues at <a href="https://github.com/geraldo/LayerTree2JSON">https://github.com/geraldo/LayerTree2JSON</a></p>
+<p>You can find the code and open issues at <a href="https://github.com/geraldo/layertree2json">https://github.com/geraldo/layertree2json</a></p>
 
 <h2>Installation</h2>
 <p>As the plugin offers the possiblity to upload the generated configuration files to a SFTP server, it uses <em>pysftp</em>. This Python library has some dependencies which can't be resolved easily on different operating systems. So for now you have to manually install pysftp:</p>

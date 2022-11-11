@@ -541,7 +541,7 @@ class LayerTree2JSON:
                         # upload QGS file to server by FTP
                         self.connectToFtp(self.projectFolder + os.path.sep + self.projectFilename, self.projectQgsPath)
                         self.iface.messageBar().pushMessage(
-                          "Success", "QGS file " + self.projectFilename + " published at " + self.projectQgsPath,
+                          "Success", "QGS file " + self.projectFilename + " published at " + self.projectQgsPath + " (You have to upload your related static layer files manually to this directory so)",
                           level=Qgis.Success, duration=3)                    
                     
                     if self.dlg.radioProject.isChecked():
