@@ -3,7 +3,7 @@ name=LayerTree2JSON
 qgisMinimumVersion=3.0
 description=Parse QGIS 3 project and write a JSON config file with layer information.
 version=0.3
-author=Gerald Kogler / PSIG
+author=Gerald Kogler
 email=geraldo@servus.at
 
 about=This plugin parses QGIS 3 projects and writes a JSON config file with information representing the layer tree. This file than automatically can be uploaded to a webserver using a SFTP connection, so so for now you have to manually install pysftp: 1. Open console and go to qgis_installation_directory\apps\Python39\Scripts\ (or just OSGeo4W_installation_directoy on Windows) 2. Type: pip install pysftp 3. Install the plugin from QGIS Usually the JSON config file then is used by a web viewer to show a layer switcher. Documentation at https://github.com/geraldo/layertree2json
