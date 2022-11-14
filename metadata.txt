@@ -17,7 +17,7 @@ tags=html, web, export, json, webmap, webmaps
 homepage=https://github.com/geraldo/layertree2json
 category=Web
 icon=icon.png
-experimental=True
+experimental=False
 deprecated=False
 server=False
 
