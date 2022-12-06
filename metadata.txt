@@ -21,3 +21,6 @@ experimental=False
 deprecated=False
 server=False
 
+changelog=
+	0.4 - Add option to upload used layer files, see https://github.com/geraldo/layertree2json/issues/12
+    0.3 - Initial publication at plugins.qgis.org
