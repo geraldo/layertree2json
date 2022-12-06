@@ -92,8 +92,16 @@ code {
         </ul>
     </li>
 </ul>
-<img src="plugin.png"/>
+<img src="use_plugin.png"/>
 <p>Clicking <em>OK</em> starts the parser and saves the JSON file in the same folder of your .qgs file. By default is then opened in your default web browser:</p>
 <img src="json_file.png"/>
 <p>If you would like to upload the produced JSON and the QGIS project file to a web server, you have to fill the related fields in project configuration and change to Mode <em>Upload to server</em>.</p>
+
+<h2>FAQ</h2>
+<h3>After installing the plugin the following error message does show up: <em>ModuleNotFoundError: No module named 'pysftp'</em></h3>
+<p>You have to install python library <em>pysftp</em> as explained in section <em>Installation</em>.</p>
+
+<h3>When uploading a project including layer files QGIS gets blocked and I see something like that:</h3>
+<img src="uploading_huge_files.png"/>
+<p>Static layer files (like .shp, .gpkg, etc.) can be huge and uploading these files per FTP to the server can take a while. As the upload happens in the same thread, QGIS can get blocked for a while. This message will disappear automatically once the upload is finished.</p>
 </body>

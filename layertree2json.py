@@ -239,23 +239,21 @@ class LayerTree2JSON:
                 password=password, 
                 cnopts=cnopts)
 
-            if (uploadFile and uploadPath):
+            if uploadFile and uploadPath:
+                if not sftp.exists(uploadPath):
+                    sftp.makedirs(uploadPath)
+                    sftp.chmod(uploadPath, mode=777)
+
                 sftp.chdir(uploadPath)
                 sftp.put(uploadFile)
 
-                self.iface.messageBar().pushMessage(
-                    "Success", "File UPLOADED to host " + host,
-                    level=Qgis.Success, duration=3)
+                #self.iface.messageBar().pushMessage("Success", "File UPLOADED to host " + host, level=Qgis.Success, duration=3)
             else:
-                self.iface.messageBar().pushMessage(
-                    "Success", "FTP connection ESTABLISHED to host " + host,
-                    level=Qgis.Success, duration=3)
+                self.iface.messageBar().pushMessage("Success", "FTP connection ESTABLISHED to host " + host, level=Qgis.Success, duration=3)
 
             sftp.close()
         except:
-            self.iface.messageBar().pushMessage(
-                "Warning", "FTP connection FAILED to host " + host,
-                level=Qgis.Warning, duration=3)
+            self.iface.messageBar().pushMessage("Warning", "FTP connection FAILED to host " + host, level=Qgis.Warning, duration=3)
  
 
     def replaceSpecialChar(self, text):
@@ -288,7 +286,7 @@ class LayerTree2JSON:
             obj['actions'] = []
             obj['external'] = node.name().startswith("¬")
             
-            if self.settingsDlg.radioMapproxy.isChecked():
+            if self.projectTilecache:
                 obj['mapproxy'] = project_file + "_layer_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
             # remove first character
@@ -365,7 +363,7 @@ class LayerTree2JSON:
             #print("- group: ", node.name())
             #print(node.children())
 
-            if self.settingsDlg.radioMapproxy.isChecked():
+            if self.projectTilecache:
                 obj['mapproxy'] = project_file + "_group_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
             # remove first character
@@ -379,11 +377,39 @@ class LayerTree2JSON:
         return obj
 
 
-    def update_project_vars(self):
-        print("update", settings.activeProject)
+    # find static layer files and upload them using FTP
+    def uploadFilesLayerTree(self, node):
+        if isinstance(node, QgsLayerTreeLayer):
+            layer = QgsProject.instance().mapLayer(node.layerId())
 
+            # get used static layer files
+            uri = layer.dataProvider().dataSourceUri().split("|layername=")[0]
+            if os.path.isfile(uri):
+                #print(uri[0], self.projectFolder)
+                uriPath = uri.replace(self.projectFolder + os.path.sep, "")
+                uriPathList = uriPath.split(os.path.sep)
+                uriFile = uriPathList[len(uriPathList)-1]
+
+                if os.path.sep in uriPath:
+                    # file in subfolder
+                    uriFolder = uriPath.replace(uriFile, "").strip()
+                    remotePath = self.projectQgsPath + uriFolder
+                else:
+                    remotePath = self.projectQgsPath
+
+                self.connectToFtp(uri, remotePath)
+                self.iface.messageBar().pushMessage("Success", "Used layer file " + uriFile + " published at " + remotePath, level=Qgis.Success, duration=3)
+
+        elif isinstance(node, QgsLayerTreeGroup):
+            for child in node.children():
+                if not child.name().startswith("¡"):
+                    self.uploadFilesLayerTree(child)
+
+
+    def update_project_vars(self, init=False):
+
+        #print("update_project_vars", settings.activeProject, self.dlg.inputProjects.currentIndex())
         if settings.activeProject != -1 and self.dlg.inputProjects.currentIndex() >= 0:
-            print("update2")
 
             project = settings.userProjects[self.dlg.inputProjects.currentIndex()]
             self.projectName = project[0]
@@ -394,10 +420,19 @@ class LayerTree2JSON:
             self.projectHost = project[5]
             self.projectUser = project[6]
             self.projectPassword = project[7]
+            # compability to migrate to plugin v0.3.1
+            if len(project) > 8:
+                self.projectTilecache = project[8]
+            else:
+                self.projectTilecache = True
 
             self.dlg.radioUpload.setEnabled(True)
+            self.dlg.radioUploadFiles.setEnabled(True)
 
-            QSettings().setValue('/LayerTree2JSON/ActiveProject', self.dlg.inputProjects.currentIndex())
+            if init:
+                settings.activeProject = self.dlg.inputProjects.currentIndex()
+                QSettings().setValue('/LayerTree2JSON/ActiveProject', settings.activeProject)
+                #print("change active project to", settings.activeProject)
 
 
     """settings dialog"""
@@ -419,6 +454,7 @@ class LayerTree2JSON:
         self.settingsDlg.inputHost.clear()
         self.settingsDlg.inputUser.clear()
         self.settingsDlg.inputPassword.clear()
+        self.settingsDlg.radioMapproxy.setChecked(True)
         self.settingsDlg.isNew = True
         self.settingsDlg.show()
 
@@ -435,6 +471,12 @@ class LayerTree2JSON:
                 self.settingsDlg.inputHost.setText(userProject[5])
                 self.settingsDlg.inputUser.setText(userProject[6])
                 self.settingsDlg.inputPassword.setText(userProject[7])
+
+                # compability to migrate to plugin v0.3.1
+                self.settingsDlg.radioMapproxy.setChecked(True)
+                if len(userProject) > 8 and not userProject[8]:
+                    self.settingsDlg.radioQgisserver.setChecked(True)
+
                 self.settingsDlg.isNew = False
                 self.settingsDlg.show()
 
@@ -461,6 +503,7 @@ class LayerTree2JSON:
                     self.dlg.buttonEditProject.setEnabled(False);
                     self.dlg.buttonRemoveProject.setEnabled(False);
                     self.dlg.radioUpload.setEnabled(False)
+                    self.dlg.radioUploadFiles.setEnabled(False)
 
 
     """Run method that performs all the real work"""
@@ -477,31 +520,35 @@ class LayerTree2JSON:
             self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
 
             # Create the dialog with elements (after translation) and keep reference
-            if self.first_start == True:
+            if self.first_start:
                 self.first_start = False
                 self.dlg = LayerTree2JSONDialog()
                 self.settingsDlg = LayerTree2JSONDialogSettings(self, self.iface, self.iface.mainWindow())
-                
+
+                # set Project list
+                names = []
+                for item in settings.userProjects:
+                    names.append(item[0])
+                self.dlg.inputProjects.clear()
+                self.dlg.inputProjects.addItems(names)
+
+                if type(settings.activeProject) == int and int(settings.activeProject) >= 0:
+                    self.dlg.inputProjects.setCurrentIndex(settings.activeProject)
+                    self.update_project_vars(True)
+
+                self.dlg.buttonEditProject.setEnabled(len(names) > 0);
+                self.dlg.buttonRemoveProject.setEnabled(len(names) > 0);
+
+                # connect GUI                
                 self.dlg.radioLocal.toggled.connect(lambda:self.radioStateLocal(self.dlg.radioLocal))
                 self.dlg.radioUpload.toggled.connect(lambda:self.radioStateUpload(self.dlg.radioUpload))
-                self.dlg.inputProjects.currentTextChanged.connect(self.update_project_vars)
+                self.dlg.radioUploadFiles.toggled.connect(lambda:self.radioStateUpload(self.dlg.radioUploadFiles))
+                self.dlg.inputProjects.currentIndexChanged.connect(self.update_project_vars)
 
                 self.dlg.buttonNewProject.clicked.connect(self.addProject)
                 self.dlg.buttonEditProject.clicked.connect(self.editProject)
                 self.dlg.buttonRemoveProject.clicked.connect(self.removeProject)
                 self.dlg.buttonBox.helpRequested.connect(self.help)
-
-            # set Project list
-            names = []
-            for item in settings.userProjects:
-                names.append(item[0])
-            self.dlg.inputProjects.clear()
-            self.dlg.inputProjects.addItems(names)
-            if type(settings.activeProject) == int and settings.activeProject >= 0:
-                self.dlg.inputProjects.setCurrentIndex(int(settings.activeProject))
-
-            self.dlg.buttonEditProject.setEnabled(len(names) > 0);
-            self.dlg.buttonRemoveProject.setEnabled(len(names) > 0);
 
             # show the dialog
             self.dlg.show()
@@ -511,8 +558,7 @@ class LayerTree2JSON:
             if result:
 
                 # check mode
-                if ((self.dlg.radioUpload.isChecked() and self.inputsFtpOk()) 
-                    or self.dlg.radioLocal.isChecked()):
+                if (((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()) or self.dlg.radioLocal.isChecked()):
 
                     # prepare file names
                     project_file = self.projectFilename.replace('.qgs', '')
@@ -532,7 +578,7 @@ class LayerTree2JSON:
                     file.write(json.dumps(info))
                     file.close()
 
-                    if (self.dlg.radioUpload.isChecked() and self.inputsFtpOk()):
+                    if ((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()):
                         # upload JSON file to server by FTP
                         self.connectToFtp(filenameJSON, self.projectJsonPath + self.projectJsonPath2)
                         # public URL of JSON file
@@ -541,13 +587,17 @@ class LayerTree2JSON:
                         # upload QGS file to server by FTP
                         self.connectToFtp(self.projectFolder + os.path.sep + self.projectFilename, self.projectQgsPath)
                         self.iface.messageBar().pushMessage(
-                          "Success", "QGS file " + self.projectFilename + " published at " + self.projectQgsPath + " (You have to upload your related static layer files manually to this directory so)",
-                          level=Qgis.Success, duration=3)                    
+                          "Success", "QGS file " + self.projectFilename + " published at " + self.projectQgsPath, level=Qgis.Success, duration=3)
+
+                        # iterate over layer tree and check if static layer files used
+                        for group in QgsProject.instance().layerTreeRoot().children():
+                            if not group.name().startswith("¡"):
+                                self.uploadFilesLayerTree(group)
                     
                     if self.dlg.radioProject.isChecked():
                         self.show_project()
                     elif self.dlg.radioJson.isChecked():
-                        if self.dlg.radioUpload.isChecked():
+                        if self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked():
                             self.show_online_file()
                         else:
                             webbrowser.open(filenameJSON)

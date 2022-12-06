@@ -46,6 +46,7 @@ class Settings():
     # [5]: Server Host
     # [6]: FTP User
     # [7]: FTP Password
+    # [8]: Tile cache
     userProjects = []
 
     def __init__(self):
@@ -85,6 +86,8 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
         self.inputJsonPath.textChanged.connect(self.checkEnabled)
         self.inputJsonPath2.textChanged.connect(self.checkEnabled)
 
+        #self.dlg.radioMapproxy.toggled.connect(self.changeTilecache)
+
         self.readSettings()
 
     def readSettings(self):
@@ -121,6 +124,7 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
         host = self.inputHost.text().strip()
         user = self.inputUser.text().strip()
         password = self.inputPassword.text().strip()
+        tilecache = self.radioMapproxy.isChecked()
 
         if name:
             if not qgsFile:
@@ -132,11 +136,12 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
             if not jsonPath2:
                 jsonPath2 = name + '/js/data/'
 
-            project = [name, qgsFile, qgsPath, jsonPath, jsonPath2, host, user, password]
+            project = [name, qgsFile, qgsPath, jsonPath, jsonPath2, host, user, password, tilecache]
             currentIndex = self.LayerTree2JSON.dlg.inputProjects.currentIndex()
             if self.isNew:
                 currentIndex = len(settings.userProjects)
                 settings.userProjects.append(project)
+                settings.activeProject = currentIndex
                 QSettings().setValue('/LayerTree2JSON/ActiveProject', currentIndex)
             else:
                 settings.userProjects[currentIndex] = project
