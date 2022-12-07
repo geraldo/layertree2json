@@ -31,6 +31,7 @@ import json
 import unicodedata
 import webbrowser
 import pysftp
+import urllib.parse
 from datetime import datetime
 
 from .resources import *
@@ -274,79 +275,104 @@ class LayerTree2JSON:
 
         if isinstance(node, QgsLayerTreeLayer):
             obj['name'] = node.name()
-            obj['qgisname'] = node.name()   # internal qgis layer name with all special characters
-            obj['type'] = "layer"
-            obj['indentifiable'] = node.layerId() not in QgsProject.instance().nonIdentifiableLayers()
+            obj['id'] = node.layerId()
             obj['visible'] = node.isVisible()
             obj['hidden'] = node.name().startswith("@") # hide layer from layertree
             if obj['hidden']:
                 obj['visible'] = True   # hidden layers/groups have to be visible by default
             obj['showlegend'] = not node.name().startswith("~") and not node.name().startswith("¬") # don't show legend in layertree
-            obj['fields'] = []
-            obj['actions'] = []
-            obj['external'] = node.name().startswith("¬")
-            
-            if self.projectTilecache:
-                obj['mapproxy'] = project_file + "_layer_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
-            # remove first character
-            if not obj['showlegend']:
-                obj['name'] = node.name()[1:]
+            # base layer
+            if str(node.layer().type()) == 'QgsMapLayerType.RasterLayer' and node.layer().providerType() == 'wms':
 
-            # fetch layer directly from external server (not from QGIS nor mapproxy)
-            if obj['external']:
-                obj['name'] = node.name()[1:]
-                src = QgsProject.instance().mapLayer(node.layerId()).source()
-                
-                # wms url
-                istart = src.index("url=")+4
-                try:
-                    iend = src.index("&", istart)
-                except ValueError:
-                    iend = len(src)
-                obj['wmsUrl'] = src[istart:iend]
-                
-                # wms layers
-                istart = src.index("layers=")+7
-                try:
-                    iend = src.index("&", istart)
-                except ValueError:
-                    iend = len(src)
-                obj['wmsLayers'] = src[istart:iend]
-                
-                # wms srs
-                istart = src.index("crs=")+4
-                try:
-                    iend = src.index("&", istart)
-                except ValueError:
-                    iend = len(src)
-                obj['wmsProjection'] = src[istart:iend]
+                obj['type'] = "baselayer"
 
-            #print("- layer: ", node.name())
+                #print(node.layer().dataProvider().uri())
 
-            layer = QgsProject.instance().mapLayer(node.layerId())
+                uri = node.layer().dataProvider().dataSourceUri()
+                uriParams = urllib.parse.unquote(uri).split("&")
+                for param in uriParams:
+                    if param.startswith("url="):
+                        obj['url'] = param[4:]
 
-            if obj['indentifiable'] and isinstance(layer, QgsVectorLayer):
+            else:
 
-                fields = []
+                obj['type'] = "layer"
+                obj['qgisname'] = node.name()   # internal qgis layer name with all special characters
+                obj['indentifiable'] = node.layerId() not in QgsProject.instance().nonIdentifiableLayers()
+                obj['fields'] = []
+                obj['actions'] = []
+                obj['external'] = node.name().startswith("¬")
 
-                # get all fields like arranged using the Drag and drop designer
-                edit_form_config = layer.editFormConfig()
-                root_container = edit_form_config.invisibleRootContainer()
-                for field_editor in root_container.findElements(QgsAttributeEditorElement.AeTypeField):
-                    i = field_editor.idx()
-                    if i >= 0 and layer.editorWidgetSetup(i).type() != 'Hidden':
-                        #print(i, field_editor.name(), layer.fields()[i].name(), layer.attributeDisplayName(i))
+                layer_package_name = QgsExpressionContextUtils.layerScope(node.layer()).variable("layer_package_name")
+                if layer_package_name:
+                    obj['package_name'] = layer_package_name
+                layer_package_format = QgsExpressionContextUtils.layerScope(node.layer()).variable("layer_package_format")
+                if layer_package_format:
+                    obj['package_format'] = layer_package_format
 
-                        f = {}
-                        f['name'] = layer.attributeDisplayName(i)
-                        obj['fields'].append(f)
+                if hasattr(self, 'projectTilecache'):
+                    if self.projectTilecache:
+                        obj['mapproxy'] = project_file + "_layer_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
-                for action in QgsGui.instance().mapLayerActionRegistry().mapLayerActions(layer):
-                    a = {}
-                    a['name'] = action.name()
-                    a['action'] = action.action()
-                    obj['actions'].append(a)
+                # remove first character
+                if not obj['showlegend']:
+                    obj['name'] = node.name()[1:]
+
+                # fetch layer directly from external server (not from QGIS nor mapproxy)
+                if obj['external']:
+                    obj['name'] = node.name()[1:]
+                    src = QgsProject.instance().mapLayer(node.layerId()).source()
+                    
+                    # wms url
+                    istart = src.index("url=")+4
+                    try:
+                        iend = src.index("&", istart)
+                    except ValueError:
+                        iend = len(src)
+                    obj['wmsUrl'] = src[istart:iend]
+                    
+                    # wms layers
+                    istart = src.index("layers=")+7
+                    try:
+                        iend = src.index("&", istart)
+                    except ValueError:
+                        iend = len(src)
+                    obj['wmsLayers'] = src[istart:iend]
+                    
+                    # wms srs
+                    istart = src.index("crs=")+4
+                    try:
+                        iend = src.index("&", istart)
+                    except ValueError:
+                        iend = len(src)
+                    obj['wmsProjection'] = src[istart:iend]
+
+                #print("- layer: ", node.name())
+
+                layer = QgsProject.instance().mapLayer(node.layerId())
+
+                if obj['indentifiable'] and isinstance(layer, QgsVectorLayer):
+
+                    fields = []
+
+                    # get all fields like arranged using the Drag and drop designer
+                    edit_form_config = layer.editFormConfig()
+                    root_container = edit_form_config.invisibleRootContainer()
+                    for field_editor in root_container.findElements(QgsAttributeEditorElement.AeTypeField):
+                        i = field_editor.idx()
+                        if i >= 0 and layer.editorWidgetSetup(i).type() != 'Hidden':
+                            #print(i, field_editor.name(), layer.fields()[i].name(), layer.attributeDisplayName(i))
+
+                            f = {}
+                            f['name'] = layer.attributeDisplayName(i)
+                            obj['fields'].append(f)
+
+                    for action in QgsGui.instance().mapLayerActionRegistry().mapLayerActions(layer):
+                        a = {}
+                        a['name'] = action.name()
+                        a['action'] = action.action()
+                        obj['actions'].append(a)
 
             return obj
 
@@ -363,8 +389,9 @@ class LayerTree2JSON:
             #print("- group: ", node.name())
             #print(node.children())
 
-            if self.projectTilecache:
-                obj['mapproxy'] = project_file + "_group_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
+            if hasattr(self, 'projectTilecache'):
+                if self.projectTilecache:
+                    obj['mapproxy'] = project_file + "_group_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
             # remove first character
             if not obj['showlegend']:
@@ -558,7 +585,7 @@ class LayerTree2JSON:
             if result:
 
                 # check mode
-                if (((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()) or self.dlg.radioLocal.isChecked()):
+                if ((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()) or self.dlg.radioLocal.isChecked():
 
                     # prepare file names
                     project_file = self.projectFilename.replace('.qgs', '')
@@ -578,7 +605,7 @@ class LayerTree2JSON:
                     file.write(json.dumps(info))
                     file.close()
 
-                    if ((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()):
+                    if (self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk():
                         # upload JSON file to server by FTP
                         self.connectToFtp(filenameJSON, self.projectJsonPath + self.projectJsonPath2)
                         # public URL of JSON file
@@ -589,10 +616,11 @@ class LayerTree2JSON:
                         self.iface.messageBar().pushMessage(
                           "Success", "QGS file " + self.projectFilename + " published at " + self.projectQgsPath, level=Qgis.Success, duration=3)
 
-                        # iterate over layer tree and check if static layer files used
-                        for group in QgsProject.instance().layerTreeRoot().children():
-                            if not group.name().startswith("¡"):
-                                self.uploadFilesLayerTree(group)
+                        if self.dlg.radioUploadFiles.isChecked():
+                            # iterate over layer tree and check if static layer files used
+                            for group in QgsProject.instance().layerTreeRoot().children():
+                                if not group.name().startswith("¡"):
+                                    self.uploadFilesLayerTree(group)
                     
                     if self.dlg.radioProject.isChecked():
                         self.show_project()

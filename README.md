@@ -64,16 +64,14 @@ Clicking *OK* starts the parser and saves the JSON file in the same folder of yo
 
 If you would like to upload the produced JSON and the QGIS project file to a web server, you have to fill the related fields in project configuration and change to Mode *Upload to server*.
 
-## Example project
+## FAQ
 
-At https://github.com/geraldo/layertree2jsonExample you can find an example project to show the use of the generated JSON file. 
+### After installing the plugin the following error message does show up: `ModuleNotFoundError: No module named 'pysftp'`
 
-This project right now uses:
-- [QGS project example file](https://github.com/geraldo/layertree2jsonExample/blob/main/layertree2jsonExample.qgs).
-- [JSON file](https://mapa.psig.es/layertree2jsonExample/js/data/layertree2jsonExample.qgs.json) generated using [layertree2json](https://github.com/geraldo/layertree2json) QGIS plugin.
-- [2 layers](https://github.com/geraldo/layertree2jsonExample/tree/main/geodata) saved as static files.
-- [QGSI Server](https://docs.qgis.org/3.22/en/docs/server_manual/) to render layers as WMS.
-- [Openlayers](https://openlayers.org/) as web map library.
-- [ol-layerswitcher](https://github.com/walkermatt/ol-layerswitcher/) to manage layers.
+You have to install python library `pysftp` as explained in section *Installation*
 
-You can have a look at the rendered version [here](https://mapa.psig.es/layertree2jsonExample/).
+### When uploading a project including layer files QGIS gets blocked and I see something like that:
+
+![JSON output](docs/uploading_huge_files.png)
+
+Static layer files (like .shp, .gpkg, etc.) can be huge and uploading these files per FTP to the server can take a while. As the upload happens in the same thread, QGIS can get blocked for a while. This message will disappear automatically once the upload is finished.
