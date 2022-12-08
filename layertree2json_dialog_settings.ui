@@ -6,367 +6,241 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>530</width>
-    <height>651</height>
+    <width>506</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>LayerTree2JSON</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBoxSettings">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>610</y>
-     <width>491</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
-   </property>
-   <property name="centerButtons">
-    <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="groupFtp">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>360</y>
-     <width>491</width>
-     <height>131</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>FTP connection</string>
-   </property>
-   <widget class="QLabel" name="labelUser">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>67</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>User:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelPassword">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>71</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Password:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputUser">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>30</y>
-      <width>381</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QgsPasswordLineEdit" name="inputPassword">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>60</y>
-      <width>381</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="buttonTest">
-    <property name="geometry">
-     <rect>
-      <x>360</x>
-      <y>90</y>
-      <width>121</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Test connection</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupCache">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>510</y>
-     <width>491</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Use tile cache</string>
-   </property>
-   <widget class="QRadioButton" name="radioQgisserver">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>50</y>
-      <width>461</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>Not using the tile proxy should be avoided for production servers.</string>
-    </property>
-    <property name="text">
-     <string>No, directly request tiles from QGIS Server</string>
-    </property>
-    <property name="checked">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="radioMapproxy">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>461</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="toolTip">
-     <string>In case you changed the symbology of any layer, you have to empty the specific mapproxy layer at /opt/mappproxy/ssa/cache_data
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QGroupBox" name="groupProject">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Project</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelProject">
+        <property name="text">
+         <string>Name:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="inputProjectName"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelQgsFile">
+        <property name="text">
+         <string>QGS file:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="inputQgsFile">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupServer">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Server</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelHost">
+        <property name="text">
+         <string>Host:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QLineEdit" name="inputHost">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelQgsPath">
+        <property name="text">
+         <string>QGS path:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="inputQgsPath"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelJsonPath">
+        <property name="text">
+         <string>JSON base:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" colspan="2">
+       <widget class="QLineEdit" name="inputJsonPath"/>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="labelJsonPath2">
+        <property name="text">
+         <string>JSON folder:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="2">
+       <widget class="QLineEdit" name="inputJsonPath2"/>
+      </item>
+      <item row="4" column="1">
+       <widget class="QPushButton" name="buttonShowProject">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Show published project</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QPushButton" name="buttonShowJson">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Show published JSON file</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupFtp">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>FTP connection</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelUser">
+        <property name="text">
+         <string>User:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="inputUser">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="labelPassword">
+        <property name="text">
+         <string>Password:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QgsPasswordLineEdit" name="inputPassword">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1" alignment="Qt::AlignRight">
+       <widget class="QPushButton" name="buttonTest">
+        <property name="text">
+         <string>Test connection</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupCache">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Use tile cache</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QRadioButton" name="radioMapproxy">
+        <property name="toolTip">
+         <string>In case you changed the symbology of any layer, you have to empty the specific mapproxy layer at /opt/mappproxy/ssa/cache_data
 In cased you changed any layer or group name, you have to change mapproxy configuration file at /opt/mappproxy/ssa/mapproxy.json</string>
-    </property>
-    <property name="text">
-     <string>Yes, use MapProxy </string>
-    </property>
-    <property name="checked">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupProject">
-   <property name="geometry">
-    <rect>
-     <x>19</x>
-     <y>20</y>
-     <width>491</width>
-     <height>101</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Project</string>
-   </property>
-   <widget class="QLineEdit" name="inputProjectName">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>30</y>
-      <width>381</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelProject">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Name:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputQgsFile">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>60</y>
-      <width>381</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelQgsFile">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>QGS file:</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="groupServer">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>140</y>
-     <width>491</width>
-     <height>201</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Server</string>
-   </property>
-   <widget class="QLineEdit" name="inputQgsPath">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>60</y>
-      <width>381</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelQgsPath">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>60</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>QGS path:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputJsonPath">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>90</y>
-      <width>381</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelJsonPath">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>90</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>JSON base:</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="buttonShowProject">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>160</y>
-      <width>171</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show published project</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="buttonShowJson">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>290</x>
-      <y>160</y>
-      <width>191</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Show published JSON file</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputHost">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>30</y>
-      <width>381</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelHost">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>81</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Host:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="labelJsonPath2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>120</y>
-      <width>91</width>
-      <height>17</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>JSON folder:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="inputJsonPath2">
-    <property name="geometry">
-     <rect>
-      <x>100</x>
-      <y>120</y>
-      <width>381</width>
-      <height>25</height>
-     </rect>
-    </property>
-   </widget>
-  </widget>
+        </property>
+        <property name="text">
+         <string>Yes, use MapProxy </string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioQgisserver">
+        <property name="toolTip">
+         <string>Not using the tile proxy should be avoided for production servers.</string>
+        </property>
+        <property name="text">
+         <string>No, directly request tiles from QGIS Server</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBoxSettings">
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Ok</set>
+     </property>
+     <property name="centerButtons">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <customwidgets>
   <customwidget>

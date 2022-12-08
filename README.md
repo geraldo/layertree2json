@@ -72,6 +72,6 @@ You have to install python library `pysftp` as explained in section *Installatio
 
 ### When uploading a project including layer files QGIS gets blocked and I see something like that:
 
-![JSON output](docs/uploading_huge_files.png)
+![QGIS blocking](docs/uploading_huge_files.png)
 
 Static layer files (like .shp, .gpkg, etc.) can be huge and uploading these files per FTP to the server can take a while. As the upload happens in the same thread, QGIS can get blocked for a while. This message will disappear automatically once the upload is finished.
