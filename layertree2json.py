@@ -416,7 +416,7 @@ class LayerTree2JSON:
             path = self.getDataProvider(node.layerId(), 'path')
 
             # get used static layer files
-            if os.path.isfile(path):
+            if path and os.path.isfile(path):
                 uriPath = path.replace(self.projectFolder + os.path.sep, "")
                 uriPathList = uriPath.split(os.path.sep)
                 uriFile = uriPathList[len(uriPathList)-1]
@@ -588,8 +588,12 @@ class LayerTree2JSON:
             # See if OK was pressed
             if result:
 
+                # check if active project file has same name then selected project
+                if self.projectName != self.projectFilename.split(".")[0]:
+                    self.iface.messageBar().pushMessage("Warning", "Your active project file name '" + self.projectFilename.split(".")[0] + "' differs from selected project '" + self.projectName + "'. Please check!", level=Qgis.Warning, duration=3)
+
                 # check mode
-                if ((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()) or self.dlg.radioLocal.isChecked():
+                elif ((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()) or self.dlg.radioLocal.isChecked():
 
                     # prepare file names
                     project_file = self.projectFilename.replace('.qgs', '')
@@ -635,6 +639,4 @@ class LayerTree2JSON:
                             webbrowser.open(filenameJSON)
 
                     # message to user
-                    self.iface.messageBar().pushMessage(
-                      "Success", "JSON file published at " + filenameJSON,
-                      level=Qgis.Success, duration=3)
+                    self.iface.messageBar().pushMessage("Success", "JSON file published at " + filenameJSON, level=Qgis.Success, duration=3)
