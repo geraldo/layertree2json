@@ -25,7 +25,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QFileInfo
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
-from qgis.core import QgsProject, Qgis, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsVectorLayer, QgsAttributeEditorElement, QgsExpressionContextUtils
+from qgis.core import QgsProject, Qgis, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsVectorLayer, QgsAttributeEditorElement, QgsExpressionContextUtils, QgsProviderRegistry
 from qgis.gui import QgsGui
 import json
 import unicodedata
@@ -269,6 +269,17 @@ class LayerTree2JSON:
                       if unicodedata.category(c) != 'Mn')
 
 
+    def getDataProvider(self, layerId, type):
+        # https://gis.stackexchange.com/a/447119/60146
+        layer = QgsProject.instance().mapLayer(layerId)
+        uri_components = QgsProviderRegistry.instance().decodeUri(layer.dataProvider().name(), layer.publicSource());
+
+        if type and type in uri_components:
+            return uri_components[type]
+        else:
+            return None
+
+
     # code based on https://github.com/geraldo/qgs-layer-parser
     def getLayerTree(self, node, project_file):
         obj = {}
@@ -276,6 +287,7 @@ class LayerTree2JSON:
         if isinstance(node, QgsLayerTreeLayer):
             obj['name'] = node.name()
             obj['id'] = node.layerId()
+            obj['provider'] = node.layer().providerType()
             obj['visible'] = node.isVisible()
             obj['hidden'] = node.name().startswith("@") # hide layer from layertree
             if obj['hidden']:
@@ -286,18 +298,12 @@ class LayerTree2JSON:
             if str(node.layer().type()) == 'QgsMapLayerType.RasterLayer' and node.layer().providerType() == 'wms':
 
                 obj['type'] = "baselayer"
-
-                #print(node.layer().dataProvider().uri())
-
-                uri = node.layer().dataProvider().dataSourceUri()
-                uriParams = urllib.parse.unquote(uri).split("&")
-                for param in uriParams:
-                    if param.startswith("url="):
-                        obj['url'] = param[4:]
+                obj['url'] = self.getDataProvider(node.layerId(), 'url')
 
             else:
 
                 obj['type'] = "layer"
+                obj['path'] = self.getDataProvider(node.layerId(), 'path')
                 obj['qgisname'] = node.name()   # internal qgis layer name with all special characters
                 obj['indentifiable'] = node.layerId() not in QgsProject.instance().nonIdentifiableLayers()
                 obj['fields'] = []
@@ -407,13 +413,11 @@ class LayerTree2JSON:
     # find static layer files and upload them using FTP
     def uploadFilesLayerTree(self, node):
         if isinstance(node, QgsLayerTreeLayer):
-            layer = QgsProject.instance().mapLayer(node.layerId())
+            path = self.getDataProvider(node.layerId(), 'path')
 
             # get used static layer files
-            uri = layer.dataProvider().dataSourceUri().split("|layername=")[0]
-            if os.path.isfile(uri):
-                #print(uri[0], self.projectFolder)
-                uriPath = uri.replace(self.projectFolder + os.path.sep, "")
+            if os.path.isfile(path):
+                uriPath = path.replace(self.projectFolder + os.path.sep, "")
                 uriPathList = uriPath.split(os.path.sep)
                 uriFile = uriPathList[len(uriPathList)-1]
 
@@ -424,7 +428,7 @@ class LayerTree2JSON:
                 else:
                     remotePath = self.projectQgsPath
 
-                self.connectToFtp(uri, remotePath)
+                self.connectToFtp(path, remotePath)
                 self.iface.messageBar().pushMessage("Success", "Used layer file " + uriFile + " published at " + remotePath, level=Qgis.Success, duration=3)
 
         elif isinstance(node, QgsLayerTreeGroup):
