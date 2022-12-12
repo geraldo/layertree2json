@@ -6,15 +6,15 @@ version=0.4.1
 author=Gerald Kogler
 email=geraldo@servus.at
 
-about=This plugin parses QGIS 3 projects and writes a JSON config file with information representing the layer tree. This file than automatically can be uploaded to a webserver using a SFTP connection, so so for now you have to manually install pysftp: 1. Open console and go to qgis_installation_directory\apps\Python39\Scripts\ (or just OSGeo4W_installation_directoy on Windows) 2. Type: pip install pysftp 3. Install the plugin from QGIS Usually the JSON config file then is used by a web viewer to show a layer switcher. Documentation at https://github.com/geraldo/layertree2json
+about=This plugin parses QGIS 3 projects and writes a JSON config file with information representing the layer tree. This file than automatically can be uploaded to a webserver using a SFTP connection, so for now you have to manually install pysftp: 1. Open console and go to qgis_installation_directory\apps\Python39\Scripts\ (or just OSGeo4W_installation_directoy on Windows) 2. Type: pip install pysftp 3. Install the plugin from QGIS Usually the JSON config file then is used by a web viewer to show a layer switcher.
 
 tracker=https://github.com/geraldo/layertree2json/issues
 repository=https://github.com/geraldo/layertree2json
+homepage=https://github.com/geraldo/layertree2json
 
 # Recommended items:
 hasProcessingProvider=no
 tags=html, web, export, json, webmap, webmaps
-homepage=https://github.com/geraldo/layertree2json
 category=Web
 icon=icon.png
 experimental=False
@@ -22,6 +22,7 @@ deprecated=False
 server=False
 
 changelog=
-	0.4.1 - Small fixes to make compatible with UDDManager plugin
-	0.4 - Add option to upload used layer files, see https://github.com/geraldo/layertree2json/issues/12
-    0.3 - Initial publication at plugins.qgis.org
+	0.4.2 - Make responsive (#15), fix file path for uploaded layer files (#16), limit use to active project file (#17)
+	0.4.1 - Small fixes to make compatible with UDDManager plugin (#14)
+	0.4 - Add option to upload used layer files (#12)
+	0.3 - Initial publication at plugins.qgis.org
