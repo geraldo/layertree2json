@@ -2,7 +2,7 @@
 name=LayerTree2JSON
 qgisMinimumVersion=3.0
 description=Parse QGIS 3 project and write a JSON config file with layer information.
-version=0.4.1
+version=0.4.2
 author=Gerald Kogler
 email=geraldo@servus.at
 
