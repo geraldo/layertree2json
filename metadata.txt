@@ -2,7 +2,7 @@
 name=LayerTree2JSON
 qgisMinimumVersion=3.0
 description=Parse QGIS 3 project and write a JSON config file with layer information.
-version=0.4.2
+version=0.4.3
 author=Gerald Kogler
 email=geraldo@servus.at
 
@@ -22,6 +22,7 @@ deprecated=False
 server=False
 
 changelog=
+	0.4.3 - Have in mind WFS layers, and export SLD for them (#6)
 	0.4.2 - Make responsive (#15), fix file path for uploaded layer files (#16), limit use to active project file (#17)
 	0.4.1 - Small fixes to make compatible with UDDManager plugin (#14)
 	0.4 - Add option to upload used layer files (#12)

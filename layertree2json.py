@@ -294,6 +294,13 @@ class LayerTree2JSON:
                 obj['visible'] = True   # hidden layers/groups have to be visible by default
             obj['showlegend'] = not node.name().startswith("~") and not node.name().startswith("¬") # don't show legend in layertree
 
+            # WFS vector layers
+            vectorial = False
+            # print("Vector layers:", QgsProject.instance().readListEntry("WFSLayers", "/")[0]);
+            if node.layerId() in QgsProject.instance().readListEntry("WFSLayers", "/")[0]:
+                vectorial = True
+            obj['vectorial'] = vectorial
+
             # base layer
             if str(node.layer().type()) == 'QgsMapLayerType.RasterLayer' and node.layer().providerType() == 'wms':
 
@@ -358,6 +365,16 @@ class LayerTree2JSON:
 
                 layer = QgsProject.instance().mapLayer(node.layerId())
 
+                # write SLD for WFS vector layers
+                if vectorial:
+                    sldFile = self.projectFolder + os.path.sep + node.name() + ".sld"
+                    # print("write sld to:", sldFile)
+                    layer.saveSldStyle(sldFile)
+                    if (self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk():
+                        # upload SLD file to server by FTP
+                        self.connectToFtp(sldFile, self.projectJsonPath + self.projectJsonPath2)
+
+
                 if obj['indentifiable'] and isinstance(layer, QgsVectorLayer):
 
                     fields = []
@@ -392,6 +409,7 @@ class LayerTree2JSON:
                 obj['visible'] = True   # hidden layers/groups have to be visible by default
             obj['showlegend'] = not node.name().startswith("~") # don't show legend in layertree
             obj['children'] = []
+            obj['vectorial'] = False # groups can't be vectorial for now
             #print("- group: ", node.name())
             #print(node.children())
 
