@@ -188,7 +188,7 @@ class LayerTree2JSON:
 
     def show_online_file(self):
         # add timestamp to path to avoid cache
-        webbrowser.open(self.projectHost + '/' + self.projectJsonPath2 + self.projectQgsFile + '.json?' + str(datetime.timestamp(datetime.now())))
+        webbrowser.open(self.projectHost + '/' + self.projectJsonPath2 + self.projectName + '.json?' + str(datetime.timestamp(datetime.now())))
 
 
     def show_project(self):
@@ -281,7 +281,7 @@ class LayerTree2JSON:
 
 
     # code based on https://github.com/geraldo/qgs-layer-parser
-    def getLayerTree(self, node, project_file):
+    def getLayerTree(self, node):
         obj = {}
 
         if isinstance(node, QgsLayerTreeLayer):
@@ -326,7 +326,7 @@ class LayerTree2JSON:
 
                 if hasattr(self, 'projectTilecache'):
                     if self.projectTilecache:
-                        obj['mapproxy'] = project_file + "_layer_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
+                        obj['mapproxy'] = self.projectName + "_layer_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
                 # remove first character
                 if not obj['showlegend']:
@@ -415,7 +415,7 @@ class LayerTree2JSON:
 
             if hasattr(self, 'projectTilecache'):
                 if self.projectTilecache:
-                    obj['mapproxy'] = project_file + "_group_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
+                    obj['mapproxy'] = self.projectName + "_group_" + self.replaceSpecialChar(self.stripAccents(obj['name'].lower().replace(' ', '_')))
 
             # remove first character
             if not obj['showlegend']:
@@ -423,7 +423,7 @@ class LayerTree2JSON:
 
             for child in node.children():
                 if not child.name().startswith("¡"):
-                    obj['children'].append(self.getLayerTree(child, project_file))
+                    obj['children'].append(self.getLayerTree(child))
 
         return obj
 
@@ -462,7 +462,7 @@ class LayerTree2JSON:
 
             project = settings.userProjects[self.dlg.inputProjects.currentIndex()]
             self.projectName = project[0]
-            self.projectQgsFile = project[1]
+            self.projectFile = project[1]
             self.projectQgsPath = project[2]
             self.projectJsonPath = project[3]
             self.projectJsonPath2 = project[4]
@@ -496,7 +496,7 @@ class LayerTree2JSON:
 
     def addProject(self):
         self.settingsDlg.inputProjectName.clear()
-        self.settingsDlg.inputQgsFile.clear()
+        self.settingsDlg.inputProjectFile.clear()
         self.settingsDlg.inputQgsPath.clear()
         self.settingsDlg.inputJsonPath.clear()
         self.settingsDlg.inputJsonPath2.clear()
@@ -513,7 +513,7 @@ class LayerTree2JSON:
             if index >= 0:
                 userProject = settings.userProjects[index]
                 self.settingsDlg.inputProjectName.setText(userProject[0])
-                self.settingsDlg.inputQgsFile.setText(userProject[1])
+                self.settingsDlg.inputProjectFile.setText(userProject[1])
                 self.settingsDlg.inputQgsPath.setText(userProject[2])
                 self.settingsDlg.inputJsonPath.setText(userProject[3])
                 self.settingsDlg.inputJsonPath2.setText(userProject[4])
@@ -567,6 +567,10 @@ class LayerTree2JSON:
             # define global variables
             self.projectFilename = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_filename")
             self.projectFolder = QgsExpressionContextUtils.projectScope(QgsProject.instance()).variable("project_folder")
+            self.projectExtension = '.qgs'
+            if self.projectFilename.startswith('postgresql:'):
+                self.projectFolder = gettempdir()
+                self.projectExtension = '.postgresql'
 
             # Create the dialog with elements (after translation) and keep reference
             if self.first_start:
@@ -607,26 +611,27 @@ class LayerTree2JSON:
             if result:
 
                 # check if active project file has same name then selected project
-                if self.projectName != self.projectFilename.split(".")[0]:
+                # ignore check for postgresql projects
+                if self.projectName != self.projectFilename.split(".")[0] and not self.projectFile.startswith('postgresql:'):
                     self.iface.messageBar().pushMessage("Warning", "Your active project file name '" + self.projectFilename.split(".")[0] + "' differs from selected project '" + self.projectName + "'. Please check!", level=Qgis.Warning, duration=3)
 
                 # check mode
                 elif ((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()) or self.dlg.radioLocal.isChecked():
 
                     # prepare file names
-                    project_file = self.projectFilename.replace('.qgs', '')
+                    #project_file = self.projectFilename.replace('.qgs', '')
                     # exception for project ctbb
-                    if 'projectName' in locals() and self.projectName == 'ctbb':
-                        project_file = 'ctbb_' + project_file
+                    #if 'projectName' in locals() and self.projectName == 'ctbb':
+                    #    project_file = 'ctbb_' + project_file
 
                     # parse QGS file to JSON
                     info=[]
                     for group in QgsProject.instance().layerTreeRoot().children():
                         if not group.name().startswith("¡"):
-                            info.append(self.getLayerTree(group, project_file))
+                            info.append(self.getLayerTree(group))
 
                     # write JSON to temporary file and show in browser
-                    filenameJSON = self.projectFolder + os.path.sep + self.projectFilename + '.json'
+                    filenameJSON = self.projectFolder + os.path.sep + self.projectName + self.projectExtension + '.json'
                     file = open(filenameJSON, 'w')
                     file.write(json.dumps(info))
                     file.close()
@@ -635,12 +640,13 @@ class LayerTree2JSON:
                         # upload JSON file to server by FTP
                         self.connectToFtp(filenameJSON, self.projectJsonPath + self.projectJsonPath2)
                         # public URL of JSON file
-                        filenameJSON = self.projectHost + '/' + self.projectJsonPath2 + self.projectFilename + '.json'
+                        filenameJSON = self.projectHost + '/' + self.projectJsonPath2 + self.projectName + self.projectExtension + '.json'
                         
                         # upload QGS file to server by FTP
-                        self.connectToFtp(self.projectFolder + os.path.sep + self.projectFilename, self.projectQgsPath)
-                        self.iface.messageBar().pushMessage(
-                          "Success", "QGS file " + self.projectFilename + " published at " + self.projectQgsPath, level=Qgis.Success, duration=3)
+                        if not self.projectFile.startswith('postgresql:'):
+                            self.connectToFtp(self.projectFolder + os.path.sep + self.projectFile, self.projectQgsPath)
+                            self.iface.messageBar().pushMessage(
+                          "Success", "QGS file " + self.projectFile + " published at " + self.projectQgsPath, level=Qgis.Success, duration=3)
 
                         if self.dlg.radioUploadFiles.isChecked():
                             # iterate over layer tree and check if static layer files used

@@ -117,7 +117,7 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
 
     def editProject(self):
         name = self.inputProjectName.text().strip()
-        qgsFile = self.inputQgsFile.text().strip()
+        projectFile = self.inputProjectFile.text().strip()
         qgsPath = self.inputQgsPath.text().strip()
         jsonPath = self.inputJsonPath.text().strip()
         jsonPath2 = self.inputJsonPath2.text().strip()
@@ -127,8 +127,8 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
         tilecache = self.radioMapproxy.isChecked()
 
         if name:
-            if not qgsFile:
-                qgsFile = name + '.qgs'
+            if not projectFile:
+                projectFile = name + '.qgs'
             if not qgsPath:
                 qgsPath = '/home/me/' + name + '/'
             if not jsonPath:
@@ -136,7 +136,7 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
             if not jsonPath2:
                 jsonPath2 = name + '/js/data/'
 
-            project = [name, qgsFile, qgsPath, jsonPath, jsonPath2, host, user, password, tilecache]
+            project = [name, projectFile, qgsPath, jsonPath, jsonPath2, host, user, password, tilecache]
             currentIndex = self.LayerTree2JSON.dlg.inputProjects.currentIndex()
             if self.isNew:
                 currentIndex = len(settings.userProjects)
@@ -170,7 +170,10 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
     def showOnlineFile(self):
         host = self.inputHost.text()
         path = self.inputJsonPath2.text()
-        file = self.inputQgsFile.text() + '.json'
+        ext = '.qgs'
+        if self.inputProjectFile.text().startswith('postgresql:'):
+            ext = '.postgresql'
+        file = self.inputProjectName.text() + ext + '.json'
         # add timestamp to path to avoid cache
         webbrowser.open(host + '/' + path + file + '?' + str(datetime.timestamp(datetime.now())))
 
