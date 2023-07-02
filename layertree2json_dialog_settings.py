@@ -86,8 +86,6 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
         self.inputJsonPath.textChanged.connect(self.checkEnabled)
         self.inputJsonPath2.textChanged.connect(self.checkEnabled)
 
-        #self.dlg.radioMapproxy.toggled.connect(self.changeTilecache)
-
         self.readSettings()
 
     def readSettings(self):
@@ -124,13 +122,11 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
         host = self.inputHost.text().strip()
         user = self.inputUser.text().strip()
         password = self.inputPassword.text().strip()
-        tilecache = self.radioMapproxy.isChecked()
+        tilecache = self.checkBoxMapproxy.isChecked()
 
         if name:
             if not projectFile:
                 projectFile = name + '.qgs'
-            if not qgsPath:
-                qgsPath = '/home/me/' + name + '/'
             if not jsonPath:
                 jsonPath = '/var/www/html/'
             if not jsonPath2:
@@ -159,9 +155,13 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
             self.LayerTree2JSON.dlg.buttonRemoveProject.setEnabled(True);
 
     def checkEnabled(self):
-            fields_filled = self.inputHost.text() != "" and self.inputQgsPath.text() != "" and self.inputJsonPath.text() != "" and self.inputJsonPath2.text() != ""
-            self.buttonShowProject.setEnabled(fields_filled)
-            self.buttonShowJson.setEnabled(fields_filled)
+        fields_filled = self.inputHost.text() != "" and self.inputJsonPath.text() != "" and self.inputJsonPath2.text() != ""
+        self.buttonShowProject.setEnabled(fields_filled)
+        self.buttonShowJson.setEnabled(fields_filled)
+
+        # qgis projects need qgis path to be filled out
+        if not self.inputProjectFile.text().startswith('postgresql:') and self.inputQgsPath.text() == "":
+            self.buttonShowProject.setEnabled(False)
 
     def testConnection(self):
         if (self.LayerTree2JSON.inputsFtpOk(self.inputHost.text(), self.inputUser.text(), self.inputPassword.text())):

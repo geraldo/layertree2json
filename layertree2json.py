@@ -188,7 +188,7 @@ class LayerTree2JSON:
 
     def show_online_file(self):
         # add timestamp to path to avoid cache
-        webbrowser.open(self.projectHost + '/' + self.projectJsonPath2 + self.projectName + '.json?' + str(datetime.timestamp(datetime.now())))
+        webbrowser.open(self.projectHost + '/' + self.projectJsonPath2 + self.projectName + self.projectExtension + '.json?' + str(datetime.timestamp(datetime.now())))
 
 
     def show_project(self):
@@ -469,11 +469,12 @@ class LayerTree2JSON:
             self.projectHost = project[5]
             self.projectUser = project[6]
             self.projectPassword = project[7]
+
             # compability to migrate to plugin v0.3.1
             if len(project) > 8:
                 self.projectTilecache = project[8]
             else:
-                self.projectTilecache = True
+                self.projectTilecache = False
 
             self.dlg.radioUpload.setEnabled(True)
             self.dlg.radioUploadFiles.setEnabled(True)
@@ -503,7 +504,6 @@ class LayerTree2JSON:
         self.settingsDlg.inputHost.clear()
         self.settingsDlg.inputUser.clear()
         self.settingsDlg.inputPassword.clear()
-        self.settingsDlg.radioMapproxy.setChecked(True)
         self.settingsDlg.isNew = True
         self.settingsDlg.show()
 
@@ -522,9 +522,8 @@ class LayerTree2JSON:
                 self.settingsDlg.inputPassword.setText(userProject[7])
 
                 # compability to migrate to plugin v0.3.1
-                self.settingsDlg.radioMapproxy.setChecked(True)
-                if len(userProject) > 8 and not userProject[8]:
-                    self.settingsDlg.radioQgisserver.setChecked(True)
+                if len(userProject) > 8:
+                    self.settingsDlg.checkBoxMapproxy.setChecked(userProject[8])
 
                 self.settingsDlg.isNew = False
                 self.settingsDlg.show()

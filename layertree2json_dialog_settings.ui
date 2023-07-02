@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>506</width>
-    <height>587</height>
+    <width>525</width>
+    <height>558</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -191,33 +191,13 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Use tile cache</string>
+      <string>Options</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QRadioButton" name="radioMapproxy">
-        <property name="toolTip">
-         <string>In case you changed the symbology of any layer, you have to empty the specific mapproxy layer at /opt/mappproxy/ssa/cache_data
-In cased you changed any layer or group name, you have to change mapproxy configuration file at /opt/mappproxy/ssa/mapproxy.json</string>
-        </property>
+       <widget class="QCheckBox" name="checkBoxMapproxy">
         <property name="text">
-         <string>Yes, use MapProxy </string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QRadioButton" name="radioQgisserver">
-        <property name="toolTip">
-         <string>Not using the tile proxy should be avoided for production servers.</string>
-        </property>
-        <property name="text">
-         <string>No, directly request tiles from QGIS Server</string>
-        </property>
-        <property name="checked">
-         <bool>false</bool>
+         <string>Use MapProxy, instead of directly requesting tiles from QGIS Server</string>
         </property>
        </widget>
       </item>
