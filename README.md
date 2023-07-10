@@ -55,6 +55,7 @@ The plugin does parse your active QGIS project and creates a JSON file with all 
     - `"wmsUrl": ''`
     - `"wmsLayers": ''`
     - `"wmsProjection": ''`
+- Prepend character `¡` to totally ignore layers for export.
     
 ![Plugin use](docs/use_plugin.png)
 

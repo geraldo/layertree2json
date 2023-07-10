@@ -455,7 +455,7 @@ class LayerTree2JSON:
                     self.uploadFilesLayerTree(child)
 
 
-    def update_project_vars(self, init=False):
+    def update_project_vars(self):
 
         #print("update_project_vars", settings.activeProject, self.dlg.inputProjects.currentIndex())
         if settings.activeProject != -1 and self.dlg.inputProjects.currentIndex() >= 0:
@@ -479,10 +479,13 @@ class LayerTree2JSON:
             self.dlg.radioUpload.setEnabled(True)
             self.dlg.radioUploadFiles.setEnabled(True)
 
-            if init:
-                settings.activeProject = self.dlg.inputProjects.currentIndex()
-                QSettings().setValue('/LayerTree2JSON/ActiveProject', settings.activeProject)
-                #print("change active project to", settings.activeProject)
+
+    def set_active_project(self):
+        settings.activeProject = self.dlg.inputProjects.currentIndex()
+        QSettings().setValue('/LayerTree2JSON/ActiveProject', settings.activeProject)
+        #print("change active project to", settings.activeProject)
+
+        self.update_project_vars()
 
 
     """settings dialog"""
@@ -584,9 +587,19 @@ class LayerTree2JSON:
                 self.dlg.inputProjects.clear()
                 self.dlg.inputProjects.addItems(names)
 
+                #print(settings.activeProject, type(settings.activeProject), self.dlg.inputProjects.currentIndex())
+
                 if type(settings.activeProject) == int and int(settings.activeProject) >= 0:
+                    # change selected project
                     self.dlg.inputProjects.setCurrentIndex(settings.activeProject)
-                    self.update_project_vars(True)
+                    self.set_active_project()
+                
+                elif settings.activeProject != -1 and self.dlg.inputProjects.currentIndex() >= 0:
+                    # first run when opening QGIS
+                    self.dlg.inputProjects.setCurrentIndex(int(settings.activeProject))
+                    self.update_project_vars()
+                    #self.dlg.radioUpload.setEnabled(True)
+                    #self.dlg.radioUploadFiles.setEnabled(True)
 
                 self.dlg.buttonEditProject.setEnabled(len(names) > 0);
                 self.dlg.buttonRemoveProject.setEnabled(len(names) > 0);
@@ -595,7 +608,7 @@ class LayerTree2JSON:
                 self.dlg.radioLocal.toggled.connect(lambda:self.radioStateLocal(self.dlg.radioLocal))
                 self.dlg.radioUpload.toggled.connect(lambda:self.radioStateUpload(self.dlg.radioUpload))
                 self.dlg.radioUploadFiles.toggled.connect(lambda:self.radioStateUpload(self.dlg.radioUploadFiles))
-                self.dlg.inputProjects.currentIndexChanged.connect(self.update_project_vars)
+                self.dlg.inputProjects.currentIndexChanged.connect(self.set_active_project)
 
                 self.dlg.buttonNewProject.clicked.connect(self.addProject)
                 self.dlg.buttonEditProject.clicked.connect(self.editProject)
@@ -611,7 +624,7 @@ class LayerTree2JSON:
 
                 # check if active project file has same name then selected project
                 # ignore check for postgresql projects
-                if self.projectName != self.projectFilename.split(".")[0] and not self.projectFile.startswith('postgresql:'):
+                if self.projectName != self.projectFilename.split(".")[0] and (not self.projectFile.startswith('postgresql:') or self.projectExtension == ".qgs"):
                     self.iface.messageBar().pushMessage("Warning", "Your active project file name '" + self.projectFilename.split(".")[0] + "' differs from selected project '" + self.projectName + "'. Please check!", level=Qgis.Warning, duration=3)
 
                 # check mode
