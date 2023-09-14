@@ -30,7 +30,7 @@ from qgis.gui import QgsGui
 import json
 import unicodedata
 import webbrowser
-import pysftp
+import paramiko
 import urllib.parse
 from datetime import datetime
 
@@ -186,9 +186,9 @@ class LayerTree2JSON:
             self.iface.removeToolBarIcon(action)
 
 
-    def show_online_file(self):
+    def show_online_file(self, project_name):
         # add timestamp to path to avoid cache
-        webbrowser.open(self.projectHost + '/' + self.projectJsonPath2 + self.projectName + self.projectExtension + '.json?' + str(datetime.timestamp(datetime.now())))
+        webbrowser.open(self.projectHost + '/' + self.projectJsonPath2 + project_name + self.projectExtension + '.json?' + str(datetime.timestamp(datetime.now())))
 
 
     def show_project(self):
@@ -196,7 +196,7 @@ class LayerTree2JSON:
         # exception for project ctbb which has different sub projects
         if path == 'ctbb':
             path += '/index'
-            if self.projectFilename != 'poum':
+            if self.projectFilename != 'poum' and self.projectFilename != 'guia' and self.projectFilename != 'activitats':
                 path += '_' + self.projectFilename.replace('.qgs', '')
             path += '.php'
         webbrowser.open(self.projectHost + '/' + path)
@@ -227,32 +227,36 @@ class LayerTree2JSON:
             return True
 
 
-    def connectToFtp(self, uploadFile=False, uploadPath=False, host=None, user=None, password=None):
+    def connectToFtp(self, localFilePath=False, uploadPath=False, uploadFile=False, host=None, user=None, password=None):
         host = host or self.projectHost
         user = user or self.projectUser
         password = password or self.projectPassword
 
         try:
-            cnopts = pysftp.CnOpts()
-            cnopts.hostkeys = None
-            sftp = pysftp.Connection(host=host, 
-                username=user, 
-                password=password, 
-                cnopts=cnopts)
+            ssh_client = paramiko.SSHClient()
+            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh_client.connect(
+                hostname=host,
+                username=user,
+                password=password
+            )
+            ftp_client=ssh_client.open_sftp()
 
-            if uploadFile and uploadPath:
-                if not sftp.exists(uploadPath):
-                    sftp.makedirs(uploadPath)
-                    sftp.chmod(uploadPath, mode=777)
+            if localFilePath and uploadPath and uploadFile:
+                # Test if remote_path exists and create of not
+                try:
+                    ftp_client.chdir(uploadPath)  
+                except IOError:
+                    ftp_client.mkdir(uploadPath)
 
-                sftp.chdir(uploadPath)
-                sftp.put(uploadFile)
+                #print(localFilePath, "->", uploadPath + uploadFile)
+                ftp_client.put(localFilePath, uploadPath + uploadFile)
 
                 #self.iface.messageBar().pushMessage("Success", "File UPLOADED to host " + host, level=Qgis.Success, duration=3)
             else:
-                self.iface.messageBar().pushMessage("Success", "FTP connection ESTABLISHED to host " + host, level=Qgis.Success, duration=3)
+                self.iface.messageBar().pushMessage("Success", "FTP connection ESTABLISHED to host " + host + " without uploading file", level=Qgis.Success, duration=3)
 
-            sftp.close()
+            ftp_client.close()
         except:
             self.iface.messageBar().pushMessage("Warning", "FTP connection FAILED to host " + host, level=Qgis.Warning, duration=3)
  
@@ -372,7 +376,7 @@ class LayerTree2JSON:
                     layer.saveSldStyle(sldFile)
                     if (self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk():
                         # upload SLD file to server by FTP
-                        self.connectToFtp(sldFile, self.projectJsonPath + self.projectJsonPath2)
+                        self.connectToFtp(sldFile, self.projectJsonPath + self.projectJsonPath2, node.name() + ".sld")
 
 
                 if obj['indentifiable'] and isinstance(layer, QgsVectorLayer):
@@ -446,7 +450,7 @@ class LayerTree2JSON:
                 else:
                     remotePath = self.projectQgsPath
 
-                self.connectToFtp(path, remotePath)
+                self.connectToFtp(path, remotePath, uriFile)
                 self.iface.messageBar().pushMessage("Success", "Used layer file " + uriFile + " published at " + remotePath, level=Qgis.Success, duration=3)
 
         elif isinstance(node, QgsLayerTreeGroup):
@@ -624,17 +628,18 @@ class LayerTree2JSON:
 
                 # check if active project file has same name then selected project
                 # ignore check for postgresql projects
-                if self.projectName != self.projectFilename.split(".")[0] and (not self.projectFile.startswith('postgresql:') or self.projectExtension == ".qgs"):
+                if self.projectName != self.projectFilename.split(".")[0] and (not self.projectFile.startswith('postgresql:') or self.projectExtension == ".qgs") and not self.projectName.startswith("ctbb_"):
                     self.iface.messageBar().pushMessage("Warning", "Your active project file name '" + self.projectFilename.split(".")[0] + "' differs from selected project '" + self.projectName + "'. Please check!", level=Qgis.Warning, duration=3)
 
                 # check mode
                 elif ((self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk()) or self.dlg.radioLocal.isChecked():
 
                     # prepare file names
+                    project_name = self.projectName
                     #project_file = self.projectFilename.replace('.qgs', '')
                     # exception for project ctbb
-                    #if 'projectName' in locals() and self.projectName == 'ctbb':
-                    #    project_file = 'ctbb_' + project_file
+                    if project_name.startswith("ctbb_"):
+                        project_name = project_name[5:]
 
                     # parse QGS file to JSON
                     info=[]
@@ -643,20 +648,20 @@ class LayerTree2JSON:
                             info.append(self.getLayerTree(group))
 
                     # write JSON to temporary file and show in browser
-                    filenameJSON = self.projectFolder + os.path.sep + self.projectName + self.projectExtension + '.json'
+                    filenameJSON = self.projectFolder + os.path.sep + project_name + self.projectExtension + '.json'
                     file = open(filenameJSON, 'w')
                     file.write(json.dumps(info))
                     file.close()
 
                     if (self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked()) and self.inputsFtpOk():
                         # upload JSON file to server by FTP
-                        self.connectToFtp(filenameJSON, self.projectJsonPath + self.projectJsonPath2)
+                        self.connectToFtp(filenameJSON, self.projectJsonPath + self.projectJsonPath2, project_name + self.projectExtension + '.json')
                         # public URL of JSON file
-                        filenameJSON = self.projectHost + '/' + self.projectJsonPath2 + self.projectName + self.projectExtension + '.json'
+                        filenameJSON = self.projectHost + '/' + self.projectJsonPath2 + project_name + self.projectExtension + '.json'
                         
                         # upload QGS file to server by FTP
                         if not self.projectFile.startswith('postgresql:'):
-                            self.connectToFtp(self.projectFolder + os.path.sep + self.projectFile, self.projectQgsPath)
+                            self.connectToFtp(self.projectFolder + os.path.sep + self.projectFile, self.projectQgsPath, self.projectFile)
                             self.iface.messageBar().pushMessage(
                           "Success", "QGS file " + self.projectFile + " published at " + self.projectQgsPath, level=Qgis.Success, duration=3)
 
@@ -670,7 +675,7 @@ class LayerTree2JSON:
                         self.show_project()
                     elif self.dlg.radioJson.isChecked():
                         if self.dlg.radioUpload.isChecked() or self.dlg.radioUploadFiles.isChecked():
-                            self.show_online_file()
+                            self.show_online_file(project_name)
                         else:
                             webbrowser.open(filenameJSON)
 

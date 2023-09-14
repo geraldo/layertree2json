@@ -2,21 +2,13 @@
 
 QGIS plugin which writes a JSON config file with layer information for the open QGIS 3 project.
 
-**LayerTree2JSON** makes it easy to syncronize your QGIS 3 proyect with a web map viewer. It parses the Qgis project and writes a JSON config file with layer information. Additionally it can handel the upload for you using SFTP.
+**LayerTree2JSON** makes it easy to syncronize your QGIS 3 proyect with a web map viewer. It parses the Qgis project and writes a JSON config file with layer information. Additionally it can handle the upload using SFTP.
 
 *Notes:*
 
 - It doesn't create a web map for you so, you still have to code your map and use the produced JSON file from their, for example to make a Layer Switcher.
 - Additionally you need to set up QGIS Server to produce the WMS tiles.
 - WFS right now is not supported out of the box, but will be soon.
-
-## Installation
-
-The plugin uses **pysftp** to upload the generated configuration files to a SFTP server. This Python library has some dependencies which can't be resolved easily on different operating systems, so for now you have to manually install pysftp:
-
-1. Open console and go to `qgis_installation_directory\apps\Python39\Scripts\` (or just `OSGeo4W_installation_directoy` on Windows)
-2. Type: `pip install pysftp`
-3. Install the plugin from QGIS
 
 ## Configuration
 
