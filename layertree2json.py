@@ -25,12 +25,11 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QFileInfo
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
-from qgis.core import QgsProject, Qgis, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsVectorLayer, QgsAttributeEditorElement, QgsExpressionContextUtils, QgsProviderRegistry
+from qgis.core import QgsProject, Qgis, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsVectorLayer, QgsAttributeEditorElement, QgsExpressionContextUtils, QgsProviderRegistry, QgsLayerNotesUtils
 from qgis.gui import QgsGui
 import json
 import unicodedata
 import webbrowser
-import paramiko
 import urllib.parse
 from datetime import datetime
 
@@ -39,6 +38,23 @@ from .layertree2json_dialog import LayerTree2JSONDialog
 from .layertree2json_dialog_settings import LayerTree2JSONDialogSettings, settings
 import os.path
 from tempfile import gettempdir
+
+
+try:
+    import paramiko
+except:
+    print("ERROR! Can't load library 'paramiko', trying to install it from pip")
+
+    import subprocess
+    try:
+        subprocess.run(['python', '-m', 'pip', 'install', 'paramiko'])
+        import paramiko
+    except:
+        try:
+            subprocess.run(['python3', '-m', 'pip', 'install', 'paramiko'])
+            import paramiko
+        except:
+            print("Failed to import 'paramiko', so you can't use SFTP upload.")
 
 
 class LayerTree2JSON:
@@ -400,6 +416,11 @@ class LayerTree2JSON:
                         a['name'] = action.name()
                         a['action'] = action.action()
                         obj['actions'].append(a)
+
+                # export layer notes
+                # for now with all formating, maybe better clean it up first
+                if QgsLayerNotesUtils.layerHasNotes(layer):
+                    obj['notes'] = QgsLayerNotesUtils.layerNotes(layer)
 
             return obj
 
