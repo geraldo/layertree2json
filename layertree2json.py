@@ -292,7 +292,7 @@ class LayerTree2JSON:
     def getDataProvider(self, layerId, type):
         # https://gis.stackexchange.com/a/447119/60146
         layer = QgsProject.instance().mapLayer(layerId)
-        uri_components = QgsProviderRegistry.instance().decodeUri(layer.dataProvider().name(), layer.publicSource());
+        uri_components = QgsProviderRegistry.instance().decodeUri(layer.dataProvider().name(), layer.publicSource())
 
         if type and type in uri_components:
             return uri_components[type]
@@ -322,7 +322,9 @@ class LayerTree2JSON:
             obj['vectorial'] = vectorial
 
             # base layer
-            if str(node.layer().type()) == 'QgsMapLayerType.RasterLayer' and node.layer().providerType() == 'wms':
+            print(node.name(), node.layer().type())
+            # breaking change: 'QgsMapLayerType.RasterLayer' renamed to 'LayerType.Raster'
+            if (str(node.layer().type()) == 'QgsMapLayerType.RasterLayer' or str(node.layer().type()) == 'LayerType.Raster') and node.layer().providerType() == 'wms':
 
                 obj['type'] = "baselayer"
                 obj['url'] = self.getDataProvider(node.layerId(), 'url')

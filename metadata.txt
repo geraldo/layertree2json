@@ -2,7 +2,7 @@
 name=LayerTree2JSON
 qgisMinimumVersion=3.0
 description=Parse QGIS 3 project and write a JSON config file with layer information.
-version=0.7
+version=0.7.1
 author=Gerald Kogler
 email=geraldo@servus.at
 
@@ -22,6 +22,7 @@ deprecated=False
 server=False
 
 changelog=
+	0.7.1 - Fix detection of basemap layers (#22)
 	0.7 - Remove dependency from pysftp (#21)
 	0.6.1 - Fix initial plugin load issue (#20)
 	0.6 - Add support for project files saved in PostgreSQL
