@@ -10,6 +10,12 @@ QGIS plugin which writes a JSON config file with layer information for the open 
 - Additionally you need to set up QGIS Server to produce the WMS tiles.
 - WFS right now is not supported out of the box, but will be soon.
 
+## Installation
+The plugin uses **paramiko** to upload the generated configuration files to a SFTP server. This Python library has some dependencies which can't be resolved easily on different operating systems, so for now you have to manually install paramiko:
+1. Open console and go to `qgis_installation_directory\apps\Python39\Scripts\` (or just `OSGeo4W_installation_directoy` on Windows)
+2. Type: `pip install paramiko`
+3. Install the plugin from QGIS
+
 ## Configuration
 
 Initially you have to add a new project clicking _New_ button:
@@ -59,9 +65,13 @@ If you would like to upload the produced JSON and the QGIS project file to a web
 
 ## FAQ
 
+### After installing the plugin the following error message does show up: `ModuleNotFoundError: No module named 'paramiko'`
+
+You have to install python library `paramiko` as explained in section *Installation*
+
 ### After installing the plugin the following error message does show up: `ModuleNotFoundError: No module named 'pysftp'`
 
-You have to install python library `pysftp` as explained in section *Installation*
+You are using an older version of the plugin and you have to install python library `pysftp`. Follow the steps explained in section *Installation* but substitute `paramiko` by `pysftp`.
 
 ### When uploading a project including layer files QGIS gets blocked and I see something like that:
 
