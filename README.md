@@ -47,6 +47,11 @@ To use the full power of the plugin and upload your settings to the server you a
 The plugin does parse your active QGIS project and creates a JSON file with all your groups and layers. It reproduces the actual state of QGIS Layers Panel, so you should do the following preparations in order to get a nice result in your web map:
 
 - Group, order and name your groups and layers as you would like to see them in your web map.
+- Give your layer columns human friendly names via *Layer > Properties > Attributes Form > Fields > Alias*.
+- The plugin takes the configuration of layer identification from the QGIS project properties. In order not to make some layers identifiable uncheck them from *Project > Properties > Data Sources > Layer > Identifiable*.
+- The plugin takes the configuration which fields to show from QGIS layer properties. In order to hide fields from layer properties by changing their *Widget Type* to *Hidden* in *Layer > Properties > Attributes Form > Fields*.
+
+Additionally there are some special characters which allow you to do the following:
 - Prepend character `@` to hide layers: This sets `"hidden": true` in JSON and could be used to tell the layer switcher to avoid showing a layer or group but render them by default.
 - Prepend character `~` to hide the legend: This sets `"showLegend": false` in JSON could be used to avoid rendering the legend in layer switcher.
 - Prepend character `¬` to load WMS layers directly: This sets `"external": true` in JSON. This option also looks up the layer source and writes the following parameters:
