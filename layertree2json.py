@@ -33,7 +33,6 @@ import webbrowser
 import urllib.parse
 from datetime import datetime
 
-from .resources import *
 from .layertree2json_dialog import LayerTree2JSONDialog
 from .layertree2json_dialog_settings import LayerTree2JSONDialogSettings, settings
 import os.path

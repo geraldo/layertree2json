@@ -28,7 +28,7 @@
 #site.addsitedir(os.path.abspath(os.path.dirname(__file__) + '/libs'))
 
 # noinspection PyPep8Naming
-def classFactory(iface):  # pylint: disable=invalid-name
+def classFactory(iface):
     """Load LayerTree2JSON class from file LayerTree2JSON.
 
     :param iface: A QGIS interface instance.
