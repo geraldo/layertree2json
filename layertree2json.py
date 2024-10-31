@@ -37,23 +37,7 @@ from .layertree2json_dialog import LayerTree2JSONDialog
 from .layertree2json_dialog_settings import LayerTree2JSONDialogSettings, settings
 import os.path
 from tempfile import gettempdir
-
-
-try:
-    import paramiko
-except:
-    print("ERROR! Can't load library 'paramiko', trying to install it from pip")
-
-    import subprocess
-    try:
-        subprocess.run(['python', '-m', 'pip', 'install', 'paramiko'])
-        import paramiko
-    except:
-        try:
-            subprocess.run(['python3', '-m', 'pip', 'install', 'paramiko'])
-            import paramiko
-        except:
-            print("Failed to import 'paramiko', so you can't use SFTP upload.")
+import paramiko
 
 
 class LayerTree2JSON:
