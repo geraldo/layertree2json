@@ -165,7 +165,7 @@ class LayerTree2JSONDialogSettings(QtWidgets.QDialog, FORM_CLASS):
 
     def testConnection(self):
         if (self.LayerTree2JSON.inputsFtpOk(self.inputHost.text(), self.inputUser.text(), self.inputPassword.text())):
-            self.LayerTree2JSON.connectToFtp(False, False, self.inputHost.text(), self.inputUser.text(), self.inputPassword.text())
+            self.LayerTree2JSON.connectToFtp(False, False, False, self.inputHost.text(), self.inputUser.text(), self.inputPassword.text())
 
     def showOnlineFile(self):
         host = self.inputHost.text()
