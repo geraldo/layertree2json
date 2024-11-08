@@ -224,6 +224,17 @@ class LayerTree2JSON:
             return False
         else: 
             return True
+ 
+
+    def mk_each_dir(self, sftp, inRemoteDir):
+        currentDir = '/'    # Slash '/' is hardcoded because ftp always uses slash
+        for dirElement in inRemoteDir.split('/'):
+            if dirElement:
+                currentDir += dirElement + '/'
+                try:
+                    sftp.mkdir(currentDir)
+                except:
+                    pass # fail silently if remote directory already exists
 
 
     def connectToFtp(self, localFilePath=False, uploadPath=False, uploadFile=False, host=None, user=None, password=None):
@@ -244,10 +255,13 @@ class LayerTree2JSON:
             if localFilePath and uploadPath and uploadFile:
                 # Test if remote_path exists and create of not
                 try:
-                    ftp_client.chdir(uploadPath)  
+                    ftp_client.chdir(uploadPath)
                 except IOError:
-                    ftp_client.mkdir(uploadPath)
-
+                    try:
+                        self.mk_each_dir(ftp_client, uploadPath)
+                    except IOError:
+                        pass
+    
                 #print(localFilePath, "->", uploadPath + uploadFile)
                 ftp_client.put(localFilePath, uploadPath + uploadFile)
 
@@ -256,9 +270,10 @@ class LayerTree2JSON:
                 self.iface.messageBar().pushMessage("Success", "FTP connection ESTABLISHED to host " + host + " without uploading file", level=Qgis.Success, duration=3)
 
             ftp_client.close()
+            ssh_client.close()
         except:
             self.iface.messageBar().pushMessage("Warning", "FTP connection FAILED to host " + host, level=Qgis.Warning, duration=3)
- 
+
 
     def replaceSpecialChar(self, text):
         chars = "!\"#$%&'()*+,./:;<=>?@[\\]^`{|}~¬·"
