@@ -1,10 +1,11 @@
 [general]
 name=LayerTree2JSON
 qgisMinimumVersion=3.0
-description=Parse QGIS 3 project and write a JSON config file with layer information.
-version=0.7.3
+description=Parse QGIS 3 project, write a JSON config file with layer information and upload to server.
+version=0.7.4
 author=Gerald Kogler
 email=geraldo@servus.at
+license=GPL-3.0-or-later
 
 about=This plugin parses QGIS 3 projects and writes a JSON config file with information representing the layer tree. This file than automatically can be uploaded to a webserver using a SFTP connection. Usually the JSON config file then is used by a web viewer to show a layer switcher.
 
@@ -14,7 +15,7 @@ homepage=https://github.com/geraldo/layertree2json
 
 # Recommended items:
 hasProcessingProvider=no
-tags=html, web, export, json, webmap, webmaps
+tags=html, web, export, json, webmap, webmaps, ftp, sftp
 category=Web
 icon=icon.png
 experimental=False
@@ -24,6 +25,7 @@ server=False
 plugin_dependencies=qpip
 
 changelog=
+	0.7.4 - mkdir for subsubdirectories, fix bug test connection
 	0.7.3 - Add plugin dependency qpip in order to install paramiko
 	0.7.2 - Add requirements.txt and remove unused resources
 	0.7.1 - Fix detection of basemap layers (#22)
