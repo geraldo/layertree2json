@@ -25,7 +25,7 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication, QFileInfo
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
 
-from qgis.core import QgsProject, Qgis, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsVectorLayer, QgsAttributeEditorElement, QgsExpressionContextUtils, QgsProviderRegistry, QgsLayerNotesUtils
+from qgis.core import QgsProject, Qgis, QgsLayerTreeLayer, QgsLayerTreeGroup, QgsVectorLayer, QgsAttributeEditorElement, QgsExpressionContextUtils, QgsProviderRegistry, QgsLayerNotesUtils, QgsMapLayer
 from qgis.gui import QgsGui
 import json
 import unicodedata
@@ -262,10 +262,10 @@ class LayerTree2JSON:
                     except IOError:
                         pass
     
-                #print(localFilePath, "->", uploadPath + uploadFile)
+                print(localFilePath, "->", uploadPath + uploadFile)
                 ftp_client.put(localFilePath, uploadPath + uploadFile)
 
-                #self.iface.messageBar().pushMessage("Success", "File UPLOADED to host " + host, level=Qgis.Success, duration=3)
+                self.iface.messageBar().pushMessage("Success", "File UPLOADED to host " + host, level=Qgis.Success, duration=3)
             else:
                 self.iface.messageBar().pushMessage("Success", "FTP connection ESTABLISHED to host " + host + " without uploading file", level=Qgis.Success, duration=3)
 
@@ -320,9 +320,9 @@ class LayerTree2JSON:
             obj['vectorial'] = vectorial
 
             # base layer
-            print(node.name(), node.layer().type())
-            # breaking change: 'QgsMapLayerType.RasterLayer' renamed to 'LayerType.Raster'
-            if (str(node.layer().type()) == 'QgsMapLayerType.RasterLayer' or str(node.layer().type()) == 'LayerType.Raster') and node.layer().providerType() == 'wms':
+            print(node.name(), node.layer().type(), node.layer().type() == QgsMapLayer.RasterLayer, node.layer().type() == Qgis.LayerType.Raster, node.layer().providerType())
+            # breaking change: 'QgsMapLayerType.RasterLayer' now is 'LayerType.Raster'
+            if (node.layer().type() == QgsMapLayer.RasterLayer or node.layer().type() == Qgis.LayerType.Raster) and node.layer().providerType() == 'wms':
 
                 obj['type'] = "baselayer"
                 obj['url'] = self.getDataProvider(node.layerId(), 'url')
