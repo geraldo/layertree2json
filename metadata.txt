@@ -1,6 +1,7 @@
 [general]
 name=LayerTree2JSON
 qgisMinimumVersion=3.0
+qgisMaximumVersion=4.99
 description=Parse QGIS 3 project, write a JSON config file with layer information and upload to server.
 version=0.7.5
 author=Gerald Kogler
@@ -21,6 +22,7 @@ icon=icon.png
 experimental=False
 deprecated=False
 server=False
+supportsQt6=True
 
 plugin_dependencies=qpip
 

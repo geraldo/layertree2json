@@ -320,9 +320,9 @@ class LayerTree2JSON:
             obj['vectorial'] = vectorial
 
             # base layer
-            print(node.name(), node.layer().type(), node.layer().type() == QgsMapLayer.RasterLayer, node.layer().type() == Qgis.LayerType.Raster, node.layer().providerType())
+            print(node.name(), node.layer().type(), node.layer().type() == QgsMapLayer.LayerType.RasterLayer, node.layer().type() == Qgis.LayerType.Raster, node.layer().providerType())
             # breaking change: 'QgsMapLayerType.RasterLayer' now is 'LayerType.Raster'
-            if (node.layer().type() == QgsMapLayer.RasterLayer or node.layer().type() == Qgis.LayerType.Raster) and node.layer().providerType() == 'wms':
+            if (node.layer().type() == QgsMapLayer.LayerType.RasterLayer or node.layer().type() == Qgis.LayerType.Raster) and node.layer().providerType() == 'wms':
 
                 obj['type'] = "baselayer"
                 obj['url'] = self.getDataProvider(node.layerId(), 'url')
@@ -402,7 +402,7 @@ class LayerTree2JSON:
                     # get all fields like arranged using the Drag and drop designer
                     edit_form_config = layer.editFormConfig()
                     root_container = edit_form_config.invisibleRootContainer()
-                    for field_editor in root_container.findElements(QgsAttributeEditorElement.AeTypeField):
+                    for field_editor in root_container.findElements(QgsAttributeEditorElement.AttributeEditorType.AeTypeField):
                         i = field_editor.idx()
                         if i >= 0 and layer.editorWidgetSetup(i).type() != 'Hidden':
                             #print(i, field_editor.name(), layer.fields()[i].name(), layer.attributeDisplayName(i))
@@ -642,7 +642,7 @@ class LayerTree2JSON:
 
             # show the dialog
             self.dlg.show()
-            result = self.dlg.exec_()
+            result = self.dlg.exec()
 
             # See if OK was pressed
             if result:
