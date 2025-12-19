@@ -3,7 +3,7 @@ name=LayerTree2JSON
 qgisMinimumVersion=3.0
 qgisMaximumVersion=4.99
 description=Parse QGIS 3 project, write a JSON config file with layer information and upload to server.
-version=0.7.5
+version=0.7.6
 author=Gerald Kogler
 email=geraldo@servus.at
 license=GPL-3.0-or-later
@@ -27,6 +27,7 @@ supportsQt6=True
 plugin_dependencies=qpip
 
 changelog=
+	0.7.6 - Make Qt6/QGIS4 compatible
 	0.7.5 - Fix detection of basemap layers, again ;) (#22)
 	0.7.4 - mkdir for subsubdirectories, fix bug test connection
 	0.7.3 - Add plugin dependency qpip in order to install paramiko
